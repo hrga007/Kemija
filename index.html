@@ -184,6 +184,126 @@
       background: color-mix(in oklab, var(--primary) 6%, var(--card));
     }
 
+    .dial-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .dial-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-width: 92px;
+    }
+
+    .dial-label {
+      font-size: 0.82rem;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 700;
+      min-height: 2.2em;
+    }
+
+    .dial {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px;
+      background: color-mix(in oklab, var(--primary) 8%, var(--card));
+    }
+
+    .dial-btn {
+      min-width: 42px;
+      min-height: 42px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 1.2rem;
+      font-weight: 900;
+      line-height: 1;
+      padding: 0;
+    }
+
+    .dial-value {
+      min-width: 52px;
+      min-height: 52px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid color-mix(in oklab, var(--primary) 55%, var(--border));
+      background: var(--card);
+      font-size: 1.3rem;
+      font-weight: 900;
+    }
+
+    .formula-preview {
+      margin-top: 8px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .option-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-weight: 700;
+    }
+
+    .option-btn.selected {
+      border-color: var(--primary);
+      background: color-mix(in oklab, var(--primary) 22%, var(--card));
+      box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 28%, transparent);
+    }
+
+    .segment-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .segment-btn {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      min-width: 56px;
+      text-align: center;
+    }
+
+    .segment-btn.selected {
+      border-color: var(--primary);
+      background: color-mix(in oklab, var(--primary) 25%, var(--card));
+    }
+
+    .class-item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      margin-top: 10px;
+      background: var(--card);
+    }
+
     .small { font-size: 0.9rem; }
 
     @media (max-width: 699px) {
@@ -6563,6 +6683,109 @@
         .replace(/\s+/g, " ");
     }
 
+    function parseChemicalFormula(formula) {
+      const parts = [];
+      const re = /([A-Z][a-z]?)(\d*)/g;
+      const src = String(formula || "");
+      let m;
+      while ((m = re.exec(src))) {
+        parts.push({ symbol: m[1], count: m[2] ? Number(m[2]) : 1 });
+      }
+      return parts;
+    }
+
+    function createNumberDial(options) {
+      const {
+        id,
+        value = 0,
+        min = 0,
+        max = 9,
+        label = "Brojčanik"
+      } = options || {};
+      const wrap = document.createElement("div");
+      wrap.className = "dial-wrap";
+
+      const labelEl = document.createElement("div");
+      labelEl.className = "dial-label";
+      labelEl.textContent = label;
+
+      const dial = document.createElement("div");
+      dial.className = "dial";
+      dial.dataset.dialId = id;
+      dial.dataset.min = String(min);
+      dial.dataset.max = String(max);
+      dial.setAttribute("role", "spinbutton");
+      dial.setAttribute("aria-label", label);
+      dial.setAttribute("aria-valuemin", String(min));
+      dial.setAttribute("aria-valuemax", String(max));
+
+      const minus = document.createElement("button");
+      minus.type = "button";
+      minus.className = "dial-btn";
+      minus.textContent = "−";
+      minus.setAttribute("aria-label", `Smanji: ${label}`);
+
+      const val = document.createElement("div");
+      val.className = "dial-value";
+      val.setAttribute("aria-live", "polite");
+
+      const plus = document.createElement("button");
+      plus.type = "button";
+      plus.className = "dial-btn";
+      plus.textContent = "+";
+      plus.setAttribute("aria-label", `Povećaj: ${label}`);
+
+      function setValue(next) {
+        const safe = Math.max(min, Math.min(max, Number.isFinite(next) ? Math.trunc(next) : min));
+        dial.dataset.value = String(safe);
+        dial.setAttribute("aria-valuenow", String(safe));
+        val.textContent = String(safe);
+        dial.dispatchEvent(new CustomEvent("dialchange", { bubbles: true, detail: { id, value: safe } }));
+      }
+
+      minus.addEventListener("click", () => setValue(Number(dial.dataset.value || value) - 1));
+      plus.addEventListener("click", () => setValue(Number(dial.dataset.value || value) + 1));
+      setValue(value);
+
+      dial.append(minus, val, plus);
+      wrap.append(labelEl, dial);
+      return wrap;
+    }
+
+    function getDialValue(scope, id, fallback = 0) {
+      const dial = scope.querySelector(`[data-dial-id="${id}"]`);
+      if (!dial) return fallback;
+      const value = Number(dial.dataset.value);
+      return Number.isFinite(value) ? value : fallback;
+    }
+
+    function parseNotation(notation) {
+      const src = String(notation || "").trim();
+      const m = src.match(/^(\d+)([A-Za-z].*)$/);
+      if (!m) return { coefficient: 1, formula: src };
+      return { coefficient: Number(m[1]), formula: m[2] };
+    }
+
+    function buildFormulaAscii(tokens) {
+      return tokens.map(t => `${t.symbol}${t.count > 1 ? t.count : ""}`).join("");
+    }
+
+    function getNameCardOptions(q) {
+      const allNames = [...new Set(
+        QUESTIONS.filter(item => item.taskType === "compound_name_valency").map(item => item.correctAnswer.name)
+      )];
+      const correct = q.correctAnswer.name;
+      const distractors = allNames.filter(name => name !== correct);
+      const seed = String(q.id || "").split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+      const picks = [];
+      for (let i = 0; i < distractors.length && picks.length < 3; i++) {
+        const idx = (seed + i * 5) % distractors.length;
+        if (!picks.includes(distractors[idx])) picks.push(distractors[idx]);
+      }
+      const options = [correct, ...picks].slice(0, 4);
+      return shuffle(options);
+    }
+
     function shuffle(arr) {
       const copy = [...arr];
       for (let i = copy.length - 1; i > 0; i--) {
@@ -6633,23 +6856,23 @@
       if (q.taskType === "equation_balance") {
         const wrapper = document.createElement("div");
         wrapper.className = "task-group";
+        wrapper.innerHTML = "<p class='small muted'>Podesi koeficijente pomoću brojčanika.</p>";
 
         const eqRow = document.createElement("div");
         eqRow.className = "eq-row";
 
         q.payload.species.forEach((species, i) => {
-          const input = document.createElement("input");
-          input.type = "number";
-          input.min = "1";
-          input.className = "coef";
-          input.dataset.idx = String(i);
-          input.placeholder = "1";
-
+          const dial = createNumberDial({
+            id: `eq-${i}`,
+            value: 1,
+            min: 1,
+            max: 9,
+            label: `Koeficijent uz ${formulaToSubscript(species)}`
+          });
           const chip = document.createElement("span");
           chip.className = "chip";
           chip.textContent = formulaToSubscript(species);
-
-          eqRow.append(input, chip);
+          eqRow.append(dial, chip);
 
           const sideNow = q.payload.sides[i];
           const sideNext = q.payload.sides[i + 1];
@@ -6664,19 +6887,73 @@
             eqRow.append(arrow);
           }
         });
-
-        wrapper.innerHTML = "<p class='small muted'>Unesi koeficijente (pozitivni cijeli brojevi).</p>";
         wrapper.appendChild(eqRow);
         answerContainer.appendChild(wrapper);
       }
 
-      if (q.taskType === "compound_formula" || q.taskType === "formula_notation") {
+      if (q.taskType === "compound_formula") {
         const wrapper = document.createElement("div");
         wrapper.className = "task-group";
-        wrapper.innerHTML = `
-          <label for="singleTextAnswer">Upiši odgovor</label>
-          <input id="singleTextAnswer" type="text" placeholder="Upiši formulu..." />
-        `;
+        wrapper.innerHTML = "<p class='small muted'>Sastavi formulu pomoću brojčanika indeksa.</p>";
+
+        const baseFormula = q.correctAnswer.formula || "";
+        const tokens = parseChemicalFormula(baseFormula);
+        wrapper.dataset.formulaTokens = JSON.stringify(tokens.map(t => ({ symbol: t.symbol })));
+        const dialGrid = document.createElement("div");
+        dialGrid.className = "dial-grid";
+        tokens.forEach((token, i) => {
+          dialGrid.appendChild(createNumberDial({
+            id: `cf-${i}`,
+            value: 1,
+            min: 1,
+            max: 9,
+            label: `${token.symbol} indeks`
+          }));
+        });
+        const preview = document.createElement("div");
+        preview.className = "formula-preview";
+        preview.id = "compoundFormulaPreview";
+        const renderPreview = () => {
+          const live = tokens.map((t, i) => ({ symbol: t.symbol, count: getDialValue(wrapper, `cf-${i}`, 1) }));
+          preview.textContent = formulaToSubscript(buildFormulaAscii(live));
+        };
+        wrapper.addEventListener("dialchange", renderPreview);
+        renderPreview();
+        wrapper.append(dialGrid, preview);
+        answerContainer.appendChild(wrapper);
+      }
+
+      if (q.taskType === "formula_notation") {
+        const wrapper = document.createElement("div");
+        wrapper.className = "task-group";
+        const parsed = parseNotation(q.correctAnswer.notation || "");
+        wrapper.dataset.notationFormula = parsed.formula;
+        wrapper.innerHTML = "<p class='small muted'>Podesi broj čestica brojčanikom.</p>";
+
+        const row = document.createElement("div");
+        row.className = "eq-row";
+        row.appendChild(createNumberDial({
+          id: "fn-coef",
+          value: 1,
+          min: 1,
+          max: 12,
+          label: "Broj molekula/atoma"
+        }));
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.textContent = formulaToSubscript(parsed.formula);
+        row.appendChild(chip);
+        wrapper.appendChild(row);
+
+        const preview = document.createElement("div");
+        preview.className = "formula-preview";
+        const renderPreview = () => {
+          const coef = getDialValue(wrapper, "fn-coef", 1);
+          preview.textContent = formulaToSubscript(`${coef}${parsed.formula}`);
+        };
+        wrapper.addEventListener("dialchange", renderPreview);
+        renderPreview();
+        wrapper.appendChild(preview);
         answerContainer.appendChild(wrapper);
       }
 
@@ -6684,46 +6961,87 @@
         const wrapper = document.createElement("div");
         wrapper.className = "task-group";
 
-        wrapper.innerHTML = `
-          <div class="row">
-            <div>
-              <label for="nameAnswer">Naziv spoja</label>
-              <input id="nameAnswer" type="text" placeholder="npr. željezov(III) oksid" />
-            </div>
-          </div>
-          <div class="row two">
-            <div>
-              <label for="valFe">Valencija Fe</label>
-              <input id="valFe" type="text" placeholder="III" />
-            </div>
-            <div>
-              <label for="valO">Valencija O</label>
-              <input id="valO" type="text" placeholder="II" />
-            </div>
-          </div>
-        `;
+        const nameLabel = document.createElement("p");
+        nameLabel.className = "small muted";
+        nameLabel.textContent = "Odaberi točan naziv spoja:";
+        wrapper.appendChild(nameLabel);
+
+        const nameGrid = document.createElement("div");
+        nameGrid.className = "option-grid";
+        const cardOptions = getNameCardOptions(q);
+        cardOptions.forEach(name => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn";
+          btn.dataset.choiceName = name;
+          btn.setAttribute("aria-pressed", "false");
+          btn.textContent = name;
+          btn.addEventListener("click", () => {
+            nameGrid.querySelectorAll(".option-btn").forEach(b => {
+              b.classList.remove("selected");
+              b.setAttribute("aria-pressed", "false");
+            });
+            btn.classList.add("selected");
+            btn.setAttribute("aria-pressed", "true");
+            wrapper.dataset.selectedName = name;
+          });
+          nameGrid.appendChild(btn);
+        });
+        wrapper.appendChild(nameGrid);
+
+        const valLabel = document.createElement("p");
+        valLabel.className = "small muted";
+        valLabel.style.marginTop = "12px";
+        valLabel.textContent = "Odaberi valencije:";
+        wrapper.appendChild(valLabel);
+
+        const romanOptions = ["I", "II", "III", "IV", "V", "VI"];
+        Object.keys(q.correctAnswer.valencies || {}).forEach(element => {
+          const block = document.createElement("div");
+          block.style.marginBottom = "10px";
+          const label = document.createElement("div");
+          label.className = "small";
+          label.style.fontWeight = "700";
+          label.textContent = `${element}`;
+          const row = document.createElement("div");
+          row.className = "segment-row";
+          row.dataset.valencyFor = element;
+
+          romanOptions.forEach(roman => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "segment-btn";
+            btn.dataset.valency = roman;
+            btn.setAttribute("aria-pressed", "false");
+            btn.textContent = roman;
+            btn.addEventListener("click", () => {
+              row.querySelectorAll(".segment-btn").forEach(b => {
+                b.classList.remove("selected");
+                b.setAttribute("aria-pressed", "false");
+              });
+              btn.classList.add("selected");
+              btn.setAttribute("aria-pressed", "true");
+              wrapper.dataset[`valency${element}`] = roman;
+            });
+            row.appendChild(btn);
+          });
+
+          block.append(label, row);
+          wrapper.appendChild(block);
+        });
         answerContainer.appendChild(wrapper);
       }
 
       if (q.taskType === "subatomic_counts") {
         const wrapper = document.createElement("div");
         wrapper.className = "task-group";
-        wrapper.innerHTML = `
-          <div class="row three">
-            <div>
-              <label for="protons">Protoni (p+)</label>
-              <input id="protons" type="number" min="0" />
-            </div>
-            <div>
-              <label for="electrons">Elektroni (e-)</label>
-              <input id="electrons" type="number" min="0" />
-            </div>
-            <div>
-              <label for="neutrons">Neutroni (n0)</label>
-              <input id="neutrons" type="number" min="0" />
-            </div>
-          </div>
-        `;
+        wrapper.innerHTML = "<p class='small muted'>Podesi p⁺, e⁻ i n⁰ pomoću brojčanika.</p>";
+        const dialGrid = document.createElement("div");
+        dialGrid.className = "dial-grid";
+        dialGrid.appendChild(createNumberDial({ id: "sa-p", value: 0, min: 0, max: 120, label: "p⁺ protoni" }));
+        dialGrid.appendChild(createNumberDial({ id: "sa-e", value: 0, min: 0, max: 120, label: "e⁻ elektroni" }));
+        dialGrid.appendChild(createNumberDial({ id: "sa-n", value: 0, min: 0, max: 180, label: "n⁰ neutroni" }));
+        wrapper.appendChild(dialGrid);
         answerContainer.appendChild(wrapper);
       }
 
@@ -6732,24 +7050,47 @@
         wrapper.className = "task-group";
         const title = document.createElement("p");
         title.className = "small muted";
-        title.textContent = "Za svaku stavku odaberi skupinu:";
+        title.textContent = "Za svaku formulu klikni odgovarajuću skupinu:";
         wrapper.appendChild(title);
 
-        q.payload.items.forEach((item, idx) => {
+        const classOptions = [
+          { key: "atomi_elementa", label: "Atomi kemijskog elementa" },
+          { key: "molekule_elementarnih_tvari", label: "Molekule elementarnih tvari" },
+          { key: "molekule_spojeva", label: "Molekule kemijskih spojeva" }
+        ];
+        q.payload.items.forEach(item => {
+          const card = document.createElement("div");
+          card.className = "class-item";
+          const itemLabel = document.createElement("div");
+          itemLabel.className = "chip";
+          itemLabel.style.display = "inline-block";
+          itemLabel.textContent = formulaToSubscript(item);
+          card.appendChild(itemLabel);
+
           const row = document.createElement("div");
-          row.className = "row two";
-          row.innerHTML = `
-            <div class="chip">${formulaToSubscript(item)}</div>
-            <div>
-              <select data-item="${item}" id="class-${idx}">
-                <option value="">-- odaberi --</option>
-                <option value="atomi_elementa">Atomi kemijskog elementa</option>
-                <option value="molekule_elementarnih_tvari">Molekule elementarnih tvari</option>
-                <option value="molekule_spojeva">Molekule kemijskih spojeva</option>
-              </select>
-            </div>
-          `;
-          wrapper.appendChild(row);
+          row.className = "segment-row";
+          row.style.marginTop = "10px";
+          row.dataset.item = item;
+          classOptions.forEach(opt => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "segment-btn";
+            btn.dataset.classChoice = opt.key;
+            btn.setAttribute("aria-pressed", "false");
+            btn.textContent = opt.label;
+            btn.addEventListener("click", () => {
+              row.querySelectorAll(".segment-btn").forEach(b => {
+                b.classList.remove("selected");
+                b.setAttribute("aria-pressed", "false");
+              });
+              btn.classList.add("selected");
+              btn.setAttribute("aria-pressed", "true");
+              wrapper.dataset[`class${item}`] = opt.key;
+            });
+            row.appendChild(btn);
+          });
+          card.appendChild(row);
+          wrapper.appendChild(card);
         });
         answerContainer.appendChild(wrapper);
       }
@@ -6757,41 +7098,53 @@
 
     function getUserAnswer(q) {
       if (q.taskType === "equation_balance") {
-        const values = [...answerContainer.querySelectorAll("input.coef")].map(input => Number(input.value));
+        const values = q.payload.species.map((_, i) => getDialValue(answerContainer, `eq-${i}`, 1));
         return { coefficients: values };
       }
 
       if (q.taskType === "compound_formula") {
-        return { formula: document.getElementById("singleTextAnswer")?.value || "" };
+        const wrapper = answerContainer.querySelector(".task-group");
+        const tokens = JSON.parse(wrapper?.dataset.formulaTokens || "[]");
+        const formula = buildFormulaAscii(tokens.map((t, i) => ({
+          symbol: t.symbol,
+          count: getDialValue(wrapper, `cf-${i}`, 1)
+        })));
+        return { formula };
       }
 
       if (q.taskType === "formula_notation") {
-        return { notation: document.getElementById("singleTextAnswer")?.value || "" };
+        const wrapper = answerContainer.querySelector(".task-group");
+        const formula = wrapper?.dataset.notationFormula || "";
+        const coef = getDialValue(wrapper || answerContainer, "fn-coef", 1);
+        return { notation: `${coef}${formula}` };
       }
 
       if (q.taskType === "compound_name_valency") {
+        const wrapper = answerContainer.querySelector(".task-group");
+        const valencies = {};
+        Object.keys(q.correctAnswer.valencies || {}).forEach(element => {
+          valencies[element] = wrapper?.dataset[`valency${element}`] || "";
+        });
         return {
-          name: document.getElementById("nameAnswer")?.value || "",
-          valencies: {
-            Fe: document.getElementById("valFe")?.value || "",
-            O: document.getElementById("valO")?.value || ""
-          }
+          name: wrapper?.dataset.selectedName || "",
+          valencies
         };
       }
 
       if (q.taskType === "subatomic_counts") {
+        const wrapper = answerContainer.querySelector(".task-group");
         return {
-          protons: Number(document.getElementById("protons")?.value),
-          electrons: Number(document.getElementById("electrons")?.value),
-          neutrons: Number(document.getElementById("neutrons")?.value)
+          protons: getDialValue(wrapper || answerContainer, "sa-p", 0),
+          electrons: getDialValue(wrapper || answerContainer, "sa-e", 0),
+          neutrons: getDialValue(wrapper || answerContainer, "sa-n", 0)
         };
       }
 
       if (q.taskType === "classification") {
+        const wrapper = answerContainer.querySelector(".task-group");
         const result = {};
         q.payload.items.forEach(item => {
-          const select = answerContainer.querySelector(`select[data-item='${item}']`);
-          result[item] = select ? select.value : "";
+          result[item] = wrapper?.dataset[`class${item}`] || "";
         });
         return { assigned: result };
       }
@@ -6814,7 +7167,10 @@
       if (q.taskType === "compound_formula") return formulaToSubscript(q.correctAnswer.formula);
       if (q.taskType === "formula_notation") return formulaToSubscript(q.correctAnswer.notation);
       if (q.taskType === "compound_name_valency") {
-        return `${q.correctAnswer.name}; Fe=${q.correctAnswer.valencies.Fe}, O=${q.correctAnswer.valencies.O}`;
+        const vals = Object.entries(q.correctAnswer.valencies || {})
+          .map(([el, val]) => `${el}=${val}`)
+          .join(", ");
+        return `${q.correctAnswer.name}; ${vals}`;
       }
       if (q.taskType === "subatomic_counts") {
         return `p+=${q.correctAnswer.protons}, e-=${q.correctAnswer.electrons}, n0=${q.correctAnswer.neutrons}`;
@@ -6848,11 +7204,12 @@
       if (q.taskType === "compound_name_valency") {
         const enteredName = normalizeName(user.name);
         const names = [q.correctAnswer.name, ...q.acceptedAnswers.map(a => a.name)].map(normalizeName);
-        const valFe = String(user.valencies.Fe || "").trim().toUpperCase();
-        const valO = String(user.valencies.O || "").trim().toUpperCase();
-        return names.includes(enteredName) &&
-          valFe === q.correctAnswer.valencies.Fe &&
-          valO === q.correctAnswer.valencies.O;
+        const valencyOk = Object.keys(q.correctAnswer.valencies || {}).every(key => {
+          const entered = String(user.valencies?.[key] || "").trim().toUpperCase();
+          const expected = String(q.correctAnswer.valencies[key] || "").trim().toUpperCase();
+          return entered === expected;
+        });
+        return names.includes(enteredName) && valencyOk;
       }
 
       if (q.taskType === "subatomic_counts") {
