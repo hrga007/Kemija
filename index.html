@@ -1,0 +1,6981 @@
+<!doctype html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kemija Kviz</title>
+  <style>
+    :root {
+      --bg: #f3f7ff;
+      --card: #ffffff;
+      --text: #101a2a;
+      --muted: #5f6b7a;
+      --primary: #2a6bf2;
+      --ok: #168f4b;
+      --bad: #c63b3b;
+      --border: #d7deea;
+      --shadow: 0 8px 22px rgba(20, 48, 96, 0.08);
+      --bg-accent: radial-gradient(1200px 500px at -10% -20%, #dcebff 0%, transparent 60%),
+                   radial-gradient(900px 400px at 110% -20%, #e5ddff 0%, transparent 55%);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f1523;
+      --card: #171f32;
+      --text: #e7eeff;
+      --muted: #a4b2ce;
+      --primary: #67a1ff;
+      --ok: #37bb74;
+      --bad: #ff7373;
+      --border: #2a3755;
+      --shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+      --bg-accent: radial-gradient(1100px 500px at -10% -20%, #1e2f53 0%, transparent 65%),
+                   radial-gradient(900px 400px at 110% -20%, #2a2149 0%, transparent 60%);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      background-image: var(--bg-accent);
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    .app {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+
+    h1, h2 { margin: 0 0 10px; }
+    p { margin: 8px 0; }
+
+    .muted { color: var(--muted); }
+
+    .row {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1fr;
+      margin: 10px 0;
+    }
+
+    @media (min-width: 700px) {
+      .row.two { grid-template-columns: 1fr 1fr; }
+      .row.three { grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+    label { font-weight: 650; display: block; margin-bottom: 4px; }
+
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 1rem;
+      background: var(--card);
+      color: var(--text);
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 48px;
+    }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-secondary { background: color-mix(in oklab, var(--primary) 18%, var(--card)); color: var(--text); }
+    .btn-ghost { background: color-mix(in oklab, var(--card) 75%, var(--text)); color: var(--text); }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .badge {
+      border-radius: 999px;
+      background: color-mix(in oklab, var(--primary) 20%, var(--card));
+      color: var(--text);
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .feedback {
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 14px;
+      border: 1px solid transparent;
+    }
+
+    .feedback.ok {
+      background: #e8f8ef;
+      border-color: #bbebcf;
+      color: #155f36;
+    }
+
+    .feedback.bad {
+      background: #fff1f1;
+      border-color: #ffd0d0;
+      color: #7f1f1f;
+    }
+
+    .hidden { display: none !important; }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      text-align: center;
+    }
+
+    .status-grid strong {
+      display: block;
+      font-size: 1.2rem;
+    }
+
+    .eq-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .coef {
+      width: 2.6em;
+      min-height: 44px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .chip {
+      background: color-mix(in oklab, var(--primary) 12%, var(--card));
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .task-group {
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 8px;
+      background: color-mix(in oklab, var(--primary) 6%, var(--card));
+    }
+
+    .small { font-size: 0.9rem; }
+
+    @media (max-width: 699px) {
+      .card { padding: 14px; border-radius: 12px; }
+      h1 { font-size: 1.4rem; }
+      h2 { font-size: 1.2rem; }
+      .status-grid { grid-template-columns: 1fr; }
+      .eq-row { align-items: stretch; }
+      .coef { width: 2.6em; }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0f1523;
+        --card: #171f32;
+        --text: #e7eeff;
+        --muted: #a4b2ce;
+        --primary: #67a1ff;
+        --ok: #37bb74;
+        --bad: #ff7373;
+        --border: #2a3755;
+        --shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+        --bg-accent: radial-gradient(1100px 500px at -10% -20%, #1e2f53 0%, transparent 65%),
+                     radial-gradient(900px 400px at 110% -20%, #2a2149 0%, transparent 60%);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="card topbar">
+      <h1>Kemija Kviz</h1>
+      <div class="topbar">
+        <div class="badge" id="bestScoreBadge">Najbolji rezultat: 0</div>
+        <button class="btn-ghost" id="themeToggleBtn" aria-label="Promijeni temu">🌙 Tamni način</button>
+      </div>
+    </section>
+
+    <section class="card" id="setupScreen">
+      <h2>Postavke kviza</h2>
+      <p class="muted">Odaberi kategoriju i težinu pa klikni na "Pokreni kviz".</p>
+
+      <div class="row two">
+        <div>
+          <label for="categorySelect">Kategorija</label>
+          <select id="categorySelect"></select>
+        </div>
+        <div>
+          <label for="difficultySelect">Težina</label>
+          <select id="difficultySelect">
+            <option value="all">Sve</option>
+            <option value="lako">Lako</option>
+            <option value="srednje">Srednje</option>
+            <option value="teško">Teško</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="startBtn">Pokreni kviz</button>
+    </section>
+
+    <section class="card hidden" id="quizScreen">
+      <div class="topbar">
+        <div class="badge" id="progressBadge">Pitanje 1/10</div>
+        <div class="badge" id="scoreBadge">Točno: 0 | Netočno: 0</div>
+      </div>
+
+      <h2 id="questionTitle" style="margin-top:12px;"></h2>
+      <p class="muted" id="questionMeta"></p>
+
+      <div id="answerContainer"></div>
+
+      <div id="feedback" class="feedback hidden"></div>
+
+      <div class="row two" style="margin-top: 14px;">
+        <button class="btn-primary" id="checkBtn">Provjeri</button>
+        <button class="btn-secondary hidden" id="nextBtn">Sljedeće pitanje</button>
+      </div>
+    </section>
+
+    <section class="card hidden" id="resultScreen">
+      <h2>Rezultat kviza</h2>
+      <div class="status-grid">
+        <div class="task-group"><span>Točno</span><strong id="resultCorrect">0</strong></div>
+        <div class="task-group"><span>Netočno</span><strong id="resultWrong">0</strong></div>
+        <div class="task-group"><span>Postotak</span><strong id="resultPercent">0%</strong></div>
+      </div>
+      <p class="muted" id="resultNote"></p>
+      <button class="btn-ghost" id="restartBtn">Ponovno pokreni kviz</button>
+    </section>
+  </main>
+
+  <script>
+    const RAW_QUESTIONS = [
+  {
+    "id": "EQ-001",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "lako",
+    "pitanje": "Izjednači jednadžbu: H2 + Cl2 -> HCl",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        1,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          1,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "H2",
+          "Cl2",
+          "HCl"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-002",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "srednje",
+    "pitanje": "Izjednači jednadžbu: N2 + H2 -> NH3",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        1,
+        3,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          1,
+          3,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "N2",
+          "H2",
+          "NH3"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-003",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "teško",
+    "pitanje": "Izjednači jednadžbu: Na + O2 -> Na2O",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        4,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          4,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "Na",
+          "O2",
+          "Na2O"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-004",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "lako",
+    "pitanje": "Izjednači jednadžbu: Mg + O2 -> MgO",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        2,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          2,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "Mg",
+          "O2",
+          "MgO"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-005",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "srednje",
+    "pitanje": "Izjednači jednadžbu: Fe + O2 -> Fe2O3",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        4,
+        3,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          4,
+          3,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "Fe",
+          "O2",
+          "Fe2O3"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-006",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "teško",
+    "pitanje": "Izjednači jednadžbu: Al + O2 -> Al2O3",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        4,
+        3,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          4,
+          3,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "Al",
+          "O2",
+          "Al2O3"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-007",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "lako",
+    "pitanje": "Izjednači jednadžbu: K + Cl2 -> KCl",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        2,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          2,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "K",
+          "Cl2",
+          "KCl"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-008",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "srednje",
+    "pitanje": "Izjednači jednadžbu: Ca + O2 -> CaO",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        2,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          2,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "Ca",
+          "O2",
+          "CaO"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-009",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "teško",
+    "pitanje": "Izjednači jednadžbu: P4 + O2 -> P2O5",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        1,
+        5,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          1,
+          5,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "P4",
+          "O2",
+          "P2O5"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-010",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "lako",
+    "pitanje": "Izjednači jednadžbu: C3H8 + O2 -> CO2 + H2O",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        1,
+        5,
+        3,
+        4
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          1,
+          5,
+          3,
+          4
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "C3H8",
+          "O2",
+          "CO2",
+          "H2O"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-011",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "srednje",
+    "pitanje": "Izjednači jednadžbu: H2 + Cl2 -> HCl",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        1,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          1,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "H2",
+          "Cl2",
+          "HCl"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-012",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "teško",
+    "pitanje": "Izjednači jednadžbu: N2 + H2 -> NH3",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        1,
+        3,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          1,
+          3,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "N2",
+          "H2",
+          "NH3"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-013",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "lako",
+    "pitanje": "Izjednači jednadžbu: Na + O2 -> Na2O",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        4,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          4,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "Na",
+          "O2",
+          "Na2O"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-014",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "srednje",
+    "pitanje": "Izjednači jednadžbu: Mg + O2 -> MgO",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        2,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          2,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "Mg",
+          "O2",
+          "MgO"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-015",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "teško",
+    "pitanje": "Izjednači jednadžbu: Fe + O2 -> Fe2O3",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        4,
+        3,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          4,
+          3,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "Fe",
+          "O2",
+          "Fe2O3"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-016",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "lako",
+    "pitanje": "Izjednači jednadžbu: Al + O2 -> Al2O3",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        4,
+        3,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          4,
+          3,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "Al",
+          "O2",
+          "Al2O3"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-017",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "srednje",
+    "pitanje": "Izjednači jednadžbu: K + Cl2 -> KCl",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        2,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          2,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "K",
+          "Cl2",
+          "KCl"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-018",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "teško",
+    "pitanje": "Izjednači jednadžbu: Ca + O2 -> CaO",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        2,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          2,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "Ca",
+          "O2",
+          "CaO"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-019",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "lako",
+    "pitanje": "Izjednači jednadžbu: P4 + O2 -> P2O5",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        1,
+        5,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          1,
+          5,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "P4",
+          "O2",
+          "P2O5"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-020",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "srednje",
+    "pitanje": "Izjednači jednadžbu: C3H8 + O2 -> CO2 + H2O",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        1,
+        5,
+        3,
+        4
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          1,
+          5,
+          3,
+          4
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "C3H8",
+          "O2",
+          "CO2",
+          "H2O"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-021",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "teško",
+    "pitanje": "Izjednači jednadžbu: H2 + Cl2 -> HCl",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        1,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          1,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "H2",
+          "Cl2",
+          "HCl"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-022",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "lako",
+    "pitanje": "Izjednači jednadžbu: N2 + H2 -> NH3",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        1,
+        3,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          1,
+          3,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "N2",
+          "H2",
+          "NH3"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-023",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "srednje",
+    "pitanje": "Izjednači jednadžbu: Na + O2 -> Na2O",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        4,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          4,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "Na",
+          "O2",
+          "Na2O"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-024",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "teško",
+    "pitanje": "Izjednači jednadžbu: Mg + O2 -> MgO",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        2,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          2,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "Mg",
+          "O2",
+          "MgO"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-025",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "lako",
+    "pitanje": "Izjednači jednadžbu: Fe + O2 -> Fe2O3",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        4,
+        3,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          4,
+          3,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "Fe",
+          "O2",
+          "Fe2O3"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-026",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "srednje",
+    "pitanje": "Izjednači jednadžbu: Al + O2 -> Al2O3",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        4,
+        3,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          4,
+          3,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "Al",
+          "O2",
+          "Al2O3"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-027",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "teško",
+    "pitanje": "Izjednači jednadžbu: K + Cl2 -> KCl",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        2,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          2,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "K",
+          "Cl2",
+          "KCl"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-028",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "lako",
+    "pitanje": "Izjednači jednadžbu: Ca + O2 -> CaO",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        2,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          2,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "Ca",
+          "O2",
+          "CaO"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-029",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "srednje",
+    "pitanje": "Izjednači jednadžbu: P4 + O2 -> P2O5",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        1,
+        5,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          1,
+          5,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "P4",
+          "O2",
+          "P2O5"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-030",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "teško",
+    "pitanje": "Izjednači jednadžbu: C3H8 + O2 -> CO2 + H2O",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        1,
+        5,
+        3,
+        4
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          1,
+          5,
+          3,
+          4
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "C3H8",
+          "O2",
+          "CO2",
+          "H2O"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-031",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "lako",
+    "pitanje": "Izjednači jednadžbu: H2 + Cl2 -> HCl",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        1,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          1,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "H2",
+          "Cl2",
+          "HCl"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-032",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "srednje",
+    "pitanje": "Izjednači jednadžbu: N2 + H2 -> NH3",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        1,
+        3,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          1,
+          3,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "N2",
+          "H2",
+          "NH3"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-033",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "teško",
+    "pitanje": "Izjednači jednadžbu: Na + O2 -> Na2O",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        4,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          4,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "Na",
+          "O2",
+          "Na2O"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "EQ-034",
+    "kategorija": "izjednacavanje_jednadzbi",
+    "tezina": "lako",
+    "pitanje": "Izjednači jednadžbu: Mg + O2 -> MgO",
+    "tocanOdgovor": {
+      "koeficijenti": [
+        2,
+        1,
+        2
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "koeficijenti": [
+          2,
+          1,
+          2
+        ]
+      }
+    ],
+    "objasnjenje": "Broj atoma svakog elementa mora biti jednak s lijeve i desne strane jednadžbe.",
+    "provjeraOdgovora": {
+      "tip": "equation_balance",
+      "normalizacija": [
+        "trim",
+        "integer_only",
+        "positive_only"
+      ],
+      "pravilo": "usporedi_niz_koeficijenata",
+      "metapodaci": {
+        "species": [
+          "Mg",
+          "O2",
+          "MgO"
+        ],
+        "sides": [
+          "L",
+          "L",
+          "D"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CF-001",
+    "kategorija": "formula_spoja",
+    "tezina": "srednje",
+    "pitanje": "Napiši formulu spoja: natrijev klorid.",
+    "tocanOdgovor": {
+      "formula": "NaCl"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "NaCl"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-002",
+    "kategorija": "formula_spoja",
+    "tezina": "teško",
+    "pitanje": "Napiši formulu spoja: kalcijev klorid.",
+    "tocanOdgovor": {
+      "formula": "CaCl2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "CaCl₂"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-003",
+    "kategorija": "formula_spoja",
+    "tezina": "lako",
+    "pitanje": "Napiši formulu spoja: magnezijev oksid.",
+    "tocanOdgovor": {
+      "formula": "MgO"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "MgO"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-004",
+    "kategorija": "formula_spoja",
+    "tezina": "srednje",
+    "pitanje": "Napiši formulu spoja: aluminijev oksid.",
+    "tocanOdgovor": {
+      "formula": "Al2O3"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "Al₂O₃"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-005",
+    "kategorija": "formula_spoja",
+    "tezina": "teško",
+    "pitanje": "Napiši formulu spoja: željezov(III) oksid.",
+    "tocanOdgovor": {
+      "formula": "Fe2O3"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "Fe₂O₃"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-006",
+    "kategorija": "formula_spoja",
+    "tezina": "lako",
+    "pitanje": "Napiši formulu spoja: bakar(II) sulfat.",
+    "tocanOdgovor": {
+      "formula": "CuSO4"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "CuSO₄"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-007",
+    "kategorija": "formula_spoja",
+    "tezina": "srednje",
+    "pitanje": "Napiši formulu spoja: kalijev nitrat.",
+    "tocanOdgovor": {
+      "formula": "KNO3"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "KNO₃"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-008",
+    "kategorija": "formula_spoja",
+    "tezina": "teško",
+    "pitanje": "Napiši formulu spoja: amonijev klorid.",
+    "tocanOdgovor": {
+      "formula": "NH4Cl"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "NH₄Cl"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-009",
+    "kategorija": "formula_spoja",
+    "tezina": "lako",
+    "pitanje": "Napiši formulu spoja: ugljični dioksid.",
+    "tocanOdgovor": {
+      "formula": "CO2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "CO₂"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-010",
+    "kategorija": "formula_spoja",
+    "tezina": "srednje",
+    "pitanje": "Napiši formulu spoja: sumporovodik.",
+    "tocanOdgovor": {
+      "formula": "H2S"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "H₂S"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-011",
+    "kategorija": "formula_spoja",
+    "tezina": "teško",
+    "pitanje": "Napiši formulu spoja: natrijev klorid.",
+    "tocanOdgovor": {
+      "formula": "NaCl"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "NaCl"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-012",
+    "kategorija": "formula_spoja",
+    "tezina": "lako",
+    "pitanje": "Napiši formulu spoja: kalcijev klorid.",
+    "tocanOdgovor": {
+      "formula": "CaCl2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "CaCl₂"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-013",
+    "kategorija": "formula_spoja",
+    "tezina": "srednje",
+    "pitanje": "Napiši formulu spoja: magnezijev oksid.",
+    "tocanOdgovor": {
+      "formula": "MgO"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "MgO"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-014",
+    "kategorija": "formula_spoja",
+    "tezina": "teško",
+    "pitanje": "Napiši formulu spoja: aluminijev oksid.",
+    "tocanOdgovor": {
+      "formula": "Al2O3"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "Al₂O₃"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-015",
+    "kategorija": "formula_spoja",
+    "tezina": "lako",
+    "pitanje": "Napiši formulu spoja: željezov(III) oksid.",
+    "tocanOdgovor": {
+      "formula": "Fe2O3"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "Fe₂O₃"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-016",
+    "kategorija": "formula_spoja",
+    "tezina": "srednje",
+    "pitanje": "Napiši formulu spoja: bakar(II) sulfat.",
+    "tocanOdgovor": {
+      "formula": "CuSO4"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "CuSO₄"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-017",
+    "kategorija": "formula_spoja",
+    "tezina": "teško",
+    "pitanje": "Napiši formulu spoja: kalijev nitrat.",
+    "tocanOdgovor": {
+      "formula": "KNO3"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "KNO₃"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-018",
+    "kategorija": "formula_spoja",
+    "tezina": "lako",
+    "pitanje": "Napiši formulu spoja: amonijev klorid.",
+    "tocanOdgovor": {
+      "formula": "NH4Cl"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "NH₄Cl"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-019",
+    "kategorija": "formula_spoja",
+    "tezina": "srednje",
+    "pitanje": "Napiši formulu spoja: ugljični dioksid.",
+    "tocanOdgovor": {
+      "formula": "CO2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "CO₂"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-020",
+    "kategorija": "formula_spoja",
+    "tezina": "teško",
+    "pitanje": "Napiši formulu spoja: sumporovodik.",
+    "tocanOdgovor": {
+      "formula": "H2S"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "H₂S"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-021",
+    "kategorija": "formula_spoja",
+    "tezina": "lako",
+    "pitanje": "Napiši formulu spoja: natrijev klorid.",
+    "tocanOdgovor": {
+      "formula": "NaCl"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "NaCl"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-022",
+    "kategorija": "formula_spoja",
+    "tezina": "srednje",
+    "pitanje": "Napiši formulu spoja: kalcijev klorid.",
+    "tocanOdgovor": {
+      "formula": "CaCl2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "CaCl₂"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-023",
+    "kategorija": "formula_spoja",
+    "tezina": "teško",
+    "pitanje": "Napiši formulu spoja: magnezijev oksid.",
+    "tocanOdgovor": {
+      "formula": "MgO"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "MgO"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-024",
+    "kategorija": "formula_spoja",
+    "tezina": "lako",
+    "pitanje": "Napiši formulu spoja: aluminijev oksid.",
+    "tocanOdgovor": {
+      "formula": "Al2O3"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "Al₂O₃"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-025",
+    "kategorija": "formula_spoja",
+    "tezina": "srednje",
+    "pitanje": "Napiši formulu spoja: željezov(III) oksid.",
+    "tocanOdgovor": {
+      "formula": "Fe2O3"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "Fe₂O₃"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-026",
+    "kategorija": "formula_spoja",
+    "tezina": "teško",
+    "pitanje": "Napiši formulu spoja: bakar(II) sulfat.",
+    "tocanOdgovor": {
+      "formula": "CuSO4"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "CuSO₄"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-027",
+    "kategorija": "formula_spoja",
+    "tezina": "lako",
+    "pitanje": "Napiši formulu spoja: kalijev nitrat.",
+    "tocanOdgovor": {
+      "formula": "KNO3"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "KNO₃"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-028",
+    "kategorija": "formula_spoja",
+    "tezina": "srednje",
+    "pitanje": "Napiši formulu spoja: amonijev klorid.",
+    "tocanOdgovor": {
+      "formula": "NH4Cl"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "NH₄Cl"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-029",
+    "kategorija": "formula_spoja",
+    "tezina": "teško",
+    "pitanje": "Napiši formulu spoja: ugljični dioksid.",
+    "tocanOdgovor": {
+      "formula": "CO2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "CO₂"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-030",
+    "kategorija": "formula_spoja",
+    "tezina": "lako",
+    "pitanje": "Napiši formulu spoja: sumporovodik.",
+    "tocanOdgovor": {
+      "formula": "H2S"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "H₂S"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-031",
+    "kategorija": "formula_spoja",
+    "tezina": "srednje",
+    "pitanje": "Napiši formulu spoja: natrijev klorid.",
+    "tocanOdgovor": {
+      "formula": "NaCl"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "NaCl"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-032",
+    "kategorija": "formula_spoja",
+    "tezina": "teško",
+    "pitanje": "Napiši formulu spoja: kalcijev klorid.",
+    "tocanOdgovor": {
+      "formula": "CaCl2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "CaCl₂"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-033",
+    "kategorija": "formula_spoja",
+    "tezina": "lako",
+    "pitanje": "Napiši formulu spoja: magnezijev oksid.",
+    "tocanOdgovor": {
+      "formula": "MgO"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "MgO"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "CF-034",
+    "kategorija": "formula_spoja",
+    "tezina": "srednje",
+    "pitanje": "Napiši formulu spoja: aluminijev oksid.",
+    "tocanOdgovor": {
+      "formula": "Al2O3"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "formula": "Al₂O₃"
+      }
+    ],
+    "objasnjenje": "Najprije odredi valencije iona/elemenata pa napiši najmanji cjelobrojni omjer u formuli.",
+    "provjeraOdgovora": {
+      "tip": "compound_formula",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normaliziranu_formulu"
+    }
+  },
+  {
+    "id": "NV-001",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "teško",
+    "pitanje": "Napiši naziv spoja i valencije za: Fe2O3.",
+    "tocanOdgovor": {
+      "naziv": "željezov(III) oksid",
+      "valencije": {
+        "Fe": "III",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "naziv": "zeljezov(III) oksid",
+        "valencije": {
+          "Fe": "III",
+          "O": "II"
+        }
+      }
+    ],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-002",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "lako",
+    "pitanje": "Napiši naziv spoja i valencije za: FeO.",
+    "tocanOdgovor": {
+      "naziv": "željezov(II) oksid",
+      "valencije": {
+        "Fe": "II",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-003",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "srednje",
+    "pitanje": "Napiši naziv spoja i valencije za: CuO.",
+    "tocanOdgovor": {
+      "naziv": "bakrov(II) oksid",
+      "valencije": {
+        "Cu": "II",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-004",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "teško",
+    "pitanje": "Napiši naziv spoja i valencije za: Cu2O.",
+    "tocanOdgovor": {
+      "naziv": "bakrov(I) oksid",
+      "valencije": {
+        "Cu": "I",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-005",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "lako",
+    "pitanje": "Napiši naziv spoja i valencije za: SO3.",
+    "tocanOdgovor": {
+      "naziv": "sumporov(VI) oksid",
+      "valencije": {
+        "S": "VI",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-006",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "srednje",
+    "pitanje": "Napiši naziv spoja i valencije za: SO2.",
+    "tocanOdgovor": {
+      "naziv": "sumporov(IV) oksid",
+      "valencije": {
+        "S": "IV",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-007",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "teško",
+    "pitanje": "Napiši naziv spoja i valencije za: P2O5.",
+    "tocanOdgovor": {
+      "naziv": "fosforov(V) oksid",
+      "valencije": {
+        "P": "V",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-008",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "lako",
+    "pitanje": "Napiši naziv spoja i valencije za: N2O3.",
+    "tocanOdgovor": {
+      "naziv": "dušikov(III) oksid",
+      "valencije": {
+        "N": "III",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-009",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "srednje",
+    "pitanje": "Napiši naziv spoja i valencije za: CO2.",
+    "tocanOdgovor": {
+      "naziv": "ugljični(IV) oksid",
+      "valencije": {
+        "C": "IV",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-010",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "teško",
+    "pitanje": "Napiši naziv spoja i valencije za: CO.",
+    "tocanOdgovor": {
+      "naziv": "ugljični(II) oksid",
+      "valencije": {
+        "C": "II",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-011",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "lako",
+    "pitanje": "Napiši naziv spoja i valencije za: Fe2O3.",
+    "tocanOdgovor": {
+      "naziv": "željezov(III) oksid",
+      "valencije": {
+        "Fe": "III",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "naziv": "zeljezov(III) oksid",
+        "valencije": {
+          "Fe": "III",
+          "O": "II"
+        }
+      }
+    ],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-012",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "srednje",
+    "pitanje": "Napiši naziv spoja i valencije za: FeO.",
+    "tocanOdgovor": {
+      "naziv": "željezov(II) oksid",
+      "valencije": {
+        "Fe": "II",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-013",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "teško",
+    "pitanje": "Napiši naziv spoja i valencije za: CuO.",
+    "tocanOdgovor": {
+      "naziv": "bakrov(II) oksid",
+      "valencije": {
+        "Cu": "II",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-014",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "lako",
+    "pitanje": "Napiši naziv spoja i valencije za: Cu2O.",
+    "tocanOdgovor": {
+      "naziv": "bakrov(I) oksid",
+      "valencije": {
+        "Cu": "I",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-015",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "srednje",
+    "pitanje": "Napiši naziv spoja i valencije za: SO3.",
+    "tocanOdgovor": {
+      "naziv": "sumporov(VI) oksid",
+      "valencije": {
+        "S": "VI",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-016",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "teško",
+    "pitanje": "Napiši naziv spoja i valencije za: SO2.",
+    "tocanOdgovor": {
+      "naziv": "sumporov(IV) oksid",
+      "valencije": {
+        "S": "IV",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-017",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "lako",
+    "pitanje": "Napiši naziv spoja i valencije za: P2O5.",
+    "tocanOdgovor": {
+      "naziv": "fosforov(V) oksid",
+      "valencije": {
+        "P": "V",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-018",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "srednje",
+    "pitanje": "Napiši naziv spoja i valencije za: N2O3.",
+    "tocanOdgovor": {
+      "naziv": "dušikov(III) oksid",
+      "valencije": {
+        "N": "III",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-019",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "teško",
+    "pitanje": "Napiši naziv spoja i valencije za: CO2.",
+    "tocanOdgovor": {
+      "naziv": "ugljični(IV) oksid",
+      "valencije": {
+        "C": "IV",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-020",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "lako",
+    "pitanje": "Napiši naziv spoja i valencije za: CO.",
+    "tocanOdgovor": {
+      "naziv": "ugljični(II) oksid",
+      "valencije": {
+        "C": "II",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-021",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "srednje",
+    "pitanje": "Napiši naziv spoja i valencije za: Fe2O3.",
+    "tocanOdgovor": {
+      "naziv": "željezov(III) oksid",
+      "valencije": {
+        "Fe": "III",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "naziv": "zeljezov(III) oksid",
+        "valencije": {
+          "Fe": "III",
+          "O": "II"
+        }
+      }
+    ],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-022",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "teško",
+    "pitanje": "Napiši naziv spoja i valencije za: FeO.",
+    "tocanOdgovor": {
+      "naziv": "željezov(II) oksid",
+      "valencije": {
+        "Fe": "II",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-023",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "lako",
+    "pitanje": "Napiši naziv spoja i valencije za: CuO.",
+    "tocanOdgovor": {
+      "naziv": "bakrov(II) oksid",
+      "valencije": {
+        "Cu": "II",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-024",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "srednje",
+    "pitanje": "Napiši naziv spoja i valencije za: Cu2O.",
+    "tocanOdgovor": {
+      "naziv": "bakrov(I) oksid",
+      "valencije": {
+        "Cu": "I",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-025",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "teško",
+    "pitanje": "Napiši naziv spoja i valencije za: SO3.",
+    "tocanOdgovor": {
+      "naziv": "sumporov(VI) oksid",
+      "valencije": {
+        "S": "VI",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-026",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "lako",
+    "pitanje": "Napiši naziv spoja i valencije za: SO2.",
+    "tocanOdgovor": {
+      "naziv": "sumporov(IV) oksid",
+      "valencije": {
+        "S": "IV",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-027",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "srednje",
+    "pitanje": "Napiši naziv spoja i valencije za: P2O5.",
+    "tocanOdgovor": {
+      "naziv": "fosforov(V) oksid",
+      "valencije": {
+        "P": "V",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-028",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "teško",
+    "pitanje": "Napiši naziv spoja i valencije za: N2O3.",
+    "tocanOdgovor": {
+      "naziv": "dušikov(III) oksid",
+      "valencije": {
+        "N": "III",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-029",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "lako",
+    "pitanje": "Napiši naziv spoja i valencije za: CO2.",
+    "tocanOdgovor": {
+      "naziv": "ugljični(IV) oksid",
+      "valencije": {
+        "C": "IV",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-030",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "srednje",
+    "pitanje": "Napiši naziv spoja i valencije za: CO.",
+    "tocanOdgovor": {
+      "naziv": "ugljični(II) oksid",
+      "valencije": {
+        "C": "II",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-031",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "teško",
+    "pitanje": "Napiši naziv spoja i valencije za: Fe2O3.",
+    "tocanOdgovor": {
+      "naziv": "željezov(III) oksid",
+      "valencije": {
+        "Fe": "III",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "naziv": "zeljezov(III) oksid",
+        "valencije": {
+          "Fe": "III",
+          "O": "II"
+        }
+      }
+    ],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-032",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "lako",
+    "pitanje": "Napiši naziv spoja i valencije za: FeO.",
+    "tocanOdgovor": {
+      "naziv": "željezov(II) oksid",
+      "valencije": {
+        "Fe": "II",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "NV-033",
+    "kategorija": "nazivlje_valencije",
+    "tezina": "srednje",
+    "pitanje": "Napiši naziv spoja i valencije za: CuO.",
+    "tocanOdgovor": {
+      "naziv": "bakrov(II) oksid",
+      "valencije": {
+        "Cu": "II",
+        "O": "II"
+      }
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Iz stehiometrije u formuli i poznate valencije kisika/halogena odredi valenciju središnjeg elementa.",
+    "provjeraOdgovora": {
+      "tip": "compound_name_valency",
+      "normalizacija": [
+        "trim",
+        "case_insensitive",
+        "latinize_diacritics"
+      ],
+      "pravilo": "usporedi_naziv_i_valencije"
+    }
+  },
+  {
+    "id": "SE-001",
+    "kategorija": "subatomske_cestice",
+    "tezina": "lako",
+    "pitanje": "Za neutralni atom H odredi broj protona, elektrona i neutrona (Z=1, A=1).",
+    "tocanOdgovor": {
+      "protoni": 1,
+      "elektroni": 1,
+      "neutroni": 0
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 1,
+        "elektroni": 1,
+        "neutroni": 0
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-002",
+    "kategorija": "subatomske_cestice",
+    "tezina": "srednje",
+    "pitanje": "Za neutralni atom He odredi broj protona, elektrona i neutrona (Z=2, A=4).",
+    "tocanOdgovor": {
+      "protoni": 2,
+      "elektroni": 2,
+      "neutroni": 2
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 2,
+        "elektroni": 2,
+        "neutroni": 2
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-003",
+    "kategorija": "subatomske_cestice",
+    "tezina": "teško",
+    "pitanje": "Za neutralni atom Li odredi broj protona, elektrona i neutrona (Z=3, A=7).",
+    "tocanOdgovor": {
+      "protoni": 3,
+      "elektroni": 3,
+      "neutroni": 4
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 3,
+        "elektroni": 3,
+        "neutroni": 4
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-004",
+    "kategorija": "subatomske_cestice",
+    "tezina": "lako",
+    "pitanje": "Za neutralni atom C odredi broj protona, elektrona i neutrona (Z=6, A=12).",
+    "tocanOdgovor": {
+      "protoni": 6,
+      "elektroni": 6,
+      "neutroni": 6
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 6,
+        "elektroni": 6,
+        "neutroni": 6
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-005",
+    "kategorija": "subatomske_cestice",
+    "tezina": "srednje",
+    "pitanje": "Za neutralni atom N odredi broj protona, elektrona i neutrona (Z=7, A=14).",
+    "tocanOdgovor": {
+      "protoni": 7,
+      "elektroni": 7,
+      "neutroni": 7
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 7,
+        "elektroni": 7,
+        "neutroni": 7
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-006",
+    "kategorija": "subatomske_cestice",
+    "tezina": "teško",
+    "pitanje": "Za neutralni atom O odredi broj protona, elektrona i neutrona (Z=8, A=16).",
+    "tocanOdgovor": {
+      "protoni": 8,
+      "elektroni": 8,
+      "neutroni": 8
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 8,
+        "elektroni": 8,
+        "neutroni": 8
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-007",
+    "kategorija": "subatomske_cestice",
+    "tezina": "lako",
+    "pitanje": "Za neutralni atom Na odredi broj protona, elektrona i neutrona (Z=11, A=23).",
+    "tocanOdgovor": {
+      "protoni": 11,
+      "elektroni": 11,
+      "neutroni": 12
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 11,
+        "elektroni": 11,
+        "neutroni": 12
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-008",
+    "kategorija": "subatomske_cestice",
+    "tezina": "srednje",
+    "pitanje": "Za neutralni atom Mg odredi broj protona, elektrona i neutrona (Z=12, A=24).",
+    "tocanOdgovor": {
+      "protoni": 12,
+      "elektroni": 12,
+      "neutroni": 12
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 12,
+        "elektroni": 12,
+        "neutroni": 12
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-009",
+    "kategorija": "subatomske_cestice",
+    "tezina": "teško",
+    "pitanje": "Za neutralni atom Al odredi broj protona, elektrona i neutrona (Z=13, A=27).",
+    "tocanOdgovor": {
+      "protoni": 13,
+      "elektroni": 13,
+      "neutroni": 14
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 13,
+        "elektroni": 13,
+        "neutroni": 14
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-010",
+    "kategorija": "subatomske_cestice",
+    "tezina": "lako",
+    "pitanje": "Za neutralni atom Cl odredi broj protona, elektrona i neutrona (Z=17, A=35).",
+    "tocanOdgovor": {
+      "protoni": 17,
+      "elektroni": 17,
+      "neutroni": 18
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 17,
+        "elektroni": 17,
+        "neutroni": 18
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-011",
+    "kategorija": "subatomske_cestice",
+    "tezina": "srednje",
+    "pitanje": "Za neutralni atom K odredi broj protona, elektrona i neutrona (Z=19, A=39).",
+    "tocanOdgovor": {
+      "protoni": 19,
+      "elektroni": 19,
+      "neutroni": 20
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 19,
+        "elektroni": 19,
+        "neutroni": 20
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-012",
+    "kategorija": "subatomske_cestice",
+    "tezina": "teško",
+    "pitanje": "Za neutralni atom H odredi broj protona, elektrona i neutrona (Z=1, A=1).",
+    "tocanOdgovor": {
+      "protoni": 1,
+      "elektroni": 1,
+      "neutroni": 0
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 1,
+        "elektroni": 1,
+        "neutroni": 0
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-013",
+    "kategorija": "subatomske_cestice",
+    "tezina": "lako",
+    "pitanje": "Za neutralni atom He odredi broj protona, elektrona i neutrona (Z=2, A=4).",
+    "tocanOdgovor": {
+      "protoni": 2,
+      "elektroni": 2,
+      "neutroni": 2
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 2,
+        "elektroni": 2,
+        "neutroni": 2
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-014",
+    "kategorija": "subatomske_cestice",
+    "tezina": "srednje",
+    "pitanje": "Za neutralni atom Li odredi broj protona, elektrona i neutrona (Z=3, A=7).",
+    "tocanOdgovor": {
+      "protoni": 3,
+      "elektroni": 3,
+      "neutroni": 4
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 3,
+        "elektroni": 3,
+        "neutroni": 4
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-015",
+    "kategorija": "subatomske_cestice",
+    "tezina": "teško",
+    "pitanje": "Za neutralni atom C odredi broj protona, elektrona i neutrona (Z=6, A=12).",
+    "tocanOdgovor": {
+      "protoni": 6,
+      "elektroni": 6,
+      "neutroni": 6
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 6,
+        "elektroni": 6,
+        "neutroni": 6
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-016",
+    "kategorija": "subatomske_cestice",
+    "tezina": "lako",
+    "pitanje": "Za neutralni atom N odredi broj protona, elektrona i neutrona (Z=7, A=14).",
+    "tocanOdgovor": {
+      "protoni": 7,
+      "elektroni": 7,
+      "neutroni": 7
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 7,
+        "elektroni": 7,
+        "neutroni": 7
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-017",
+    "kategorija": "subatomske_cestice",
+    "tezina": "srednje",
+    "pitanje": "Za neutralni atom O odredi broj protona, elektrona i neutrona (Z=8, A=16).",
+    "tocanOdgovor": {
+      "protoni": 8,
+      "elektroni": 8,
+      "neutroni": 8
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 8,
+        "elektroni": 8,
+        "neutroni": 8
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-018",
+    "kategorija": "subatomske_cestice",
+    "tezina": "teško",
+    "pitanje": "Za neutralni atom Na odredi broj protona, elektrona i neutrona (Z=11, A=23).",
+    "tocanOdgovor": {
+      "protoni": 11,
+      "elektroni": 11,
+      "neutroni": 12
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 11,
+        "elektroni": 11,
+        "neutroni": 12
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-019",
+    "kategorija": "subatomske_cestice",
+    "tezina": "lako",
+    "pitanje": "Za neutralni atom Mg odredi broj protona, elektrona i neutrona (Z=12, A=24).",
+    "tocanOdgovor": {
+      "protoni": 12,
+      "elektroni": 12,
+      "neutroni": 12
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 12,
+        "elektroni": 12,
+        "neutroni": 12
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-020",
+    "kategorija": "subatomske_cestice",
+    "tezina": "srednje",
+    "pitanje": "Za neutralni atom Al odredi broj protona, elektrona i neutrona (Z=13, A=27).",
+    "tocanOdgovor": {
+      "protoni": 13,
+      "elektroni": 13,
+      "neutroni": 14
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 13,
+        "elektroni": 13,
+        "neutroni": 14
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-021",
+    "kategorija": "subatomske_cestice",
+    "tezina": "teško",
+    "pitanje": "Za neutralni atom Cl odredi broj protona, elektrona i neutrona (Z=17, A=35).",
+    "tocanOdgovor": {
+      "protoni": 17,
+      "elektroni": 17,
+      "neutroni": 18
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 17,
+        "elektroni": 17,
+        "neutroni": 18
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-022",
+    "kategorija": "subatomske_cestice",
+    "tezina": "lako",
+    "pitanje": "Za neutralni atom K odredi broj protona, elektrona i neutrona (Z=19, A=39).",
+    "tocanOdgovor": {
+      "protoni": 19,
+      "elektroni": 19,
+      "neutroni": 20
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 19,
+        "elektroni": 19,
+        "neutroni": 20
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-023",
+    "kategorija": "subatomske_cestice",
+    "tezina": "srednje",
+    "pitanje": "Za neutralni atom H odredi broj protona, elektrona i neutrona (Z=1, A=1).",
+    "tocanOdgovor": {
+      "protoni": 1,
+      "elektroni": 1,
+      "neutroni": 0
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 1,
+        "elektroni": 1,
+        "neutroni": 0
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-024",
+    "kategorija": "subatomske_cestice",
+    "tezina": "teško",
+    "pitanje": "Za neutralni atom He odredi broj protona, elektrona i neutrona (Z=2, A=4).",
+    "tocanOdgovor": {
+      "protoni": 2,
+      "elektroni": 2,
+      "neutroni": 2
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 2,
+        "elektroni": 2,
+        "neutroni": 2
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-025",
+    "kategorija": "subatomske_cestice",
+    "tezina": "lako",
+    "pitanje": "Za neutralni atom Li odredi broj protona, elektrona i neutrona (Z=3, A=7).",
+    "tocanOdgovor": {
+      "protoni": 3,
+      "elektroni": 3,
+      "neutroni": 4
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 3,
+        "elektroni": 3,
+        "neutroni": 4
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-026",
+    "kategorija": "subatomske_cestice",
+    "tezina": "srednje",
+    "pitanje": "Za neutralni atom C odredi broj protona, elektrona i neutrona (Z=6, A=12).",
+    "tocanOdgovor": {
+      "protoni": 6,
+      "elektroni": 6,
+      "neutroni": 6
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 6,
+        "elektroni": 6,
+        "neutroni": 6
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-027",
+    "kategorija": "subatomske_cestice",
+    "tezina": "teško",
+    "pitanje": "Za neutralni atom N odredi broj protona, elektrona i neutrona (Z=7, A=14).",
+    "tocanOdgovor": {
+      "protoni": 7,
+      "elektroni": 7,
+      "neutroni": 7
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 7,
+        "elektroni": 7,
+        "neutroni": 7
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-028",
+    "kategorija": "subatomske_cestice",
+    "tezina": "lako",
+    "pitanje": "Za neutralni atom O odredi broj protona, elektrona i neutrona (Z=8, A=16).",
+    "tocanOdgovor": {
+      "protoni": 8,
+      "elektroni": 8,
+      "neutroni": 8
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 8,
+        "elektroni": 8,
+        "neutroni": 8
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-029",
+    "kategorija": "subatomske_cestice",
+    "tezina": "srednje",
+    "pitanje": "Za neutralni atom Na odredi broj protona, elektrona i neutrona (Z=11, A=23).",
+    "tocanOdgovor": {
+      "protoni": 11,
+      "elektroni": 11,
+      "neutroni": 12
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 11,
+        "elektroni": 11,
+        "neutroni": 12
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-030",
+    "kategorija": "subatomske_cestice",
+    "tezina": "teško",
+    "pitanje": "Za neutralni atom Mg odredi broj protona, elektrona i neutrona (Z=12, A=24).",
+    "tocanOdgovor": {
+      "protoni": 12,
+      "elektroni": 12,
+      "neutroni": 12
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 12,
+        "elektroni": 12,
+        "neutroni": 12
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-031",
+    "kategorija": "subatomske_cestice",
+    "tezina": "lako",
+    "pitanje": "Za neutralni atom Al odredi broj protona, elektrona i neutrona (Z=13, A=27).",
+    "tocanOdgovor": {
+      "protoni": 13,
+      "elektroni": 13,
+      "neutroni": 14
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 13,
+        "elektroni": 13,
+        "neutroni": 14
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-032",
+    "kategorija": "subatomske_cestice",
+    "tezina": "srednje",
+    "pitanje": "Za neutralni atom Cl odredi broj protona, elektrona i neutrona (Z=17, A=35).",
+    "tocanOdgovor": {
+      "protoni": 17,
+      "elektroni": 17,
+      "neutroni": 18
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 17,
+        "elektroni": 17,
+        "neutroni": 18
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "SE-033",
+    "kategorija": "subatomske_cestice",
+    "tezina": "teško",
+    "pitanje": "Za neutralni atom K odredi broj protona, elektrona i neutrona (Z=19, A=39).",
+    "tocanOdgovor": {
+      "protoni": 19,
+      "elektroni": 19,
+      "neutroni": 20
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "protoni": 19,
+        "elektroni": 19,
+        "neutroni": 20
+      }
+    ],
+    "objasnjenje": "Za neutralan atom vrijedi p = Z i e = Z, a broj neutrona je n = A - Z.",
+    "provjeraOdgovora": {
+      "tip": "subatomic_counts",
+      "normalizacija": [
+        "trim",
+        "integer_only"
+      ],
+      "pravilo": "usporedi_tri_brojcane_vrijednosti"
+    }
+  },
+  {
+    "id": "CL-001",
+    "kategorija": "razvrstavanje",
+    "tezina": "srednje",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: O2, N2, Ne, NH3, CH4.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ne"
+      ],
+      "molekule_elementarnih_tvari": [
+        "O2",
+        "N2"
+      ],
+      "molekule_spojeva": [
+        "NH3",
+        "CH4"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "O2",
+          "N2",
+          "Ne",
+          "NH3",
+          "CH4"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-002",
+    "kategorija": "razvrstavanje",
+    "tezina": "teško",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: H2, Cl2, Ar, HCl, CO2.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ar"
+      ],
+      "molekule_elementarnih_tvari": [
+        "H2",
+        "Cl2"
+      ],
+      "molekule_spojeva": [
+        "HCl",
+        "CO2"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "H2",
+          "Cl2",
+          "Ar",
+          "HCl",
+          "CO2"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-003",
+    "kategorija": "razvrstavanje",
+    "tezina": "lako",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: S8, O3, He, SO2, NO2.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "He"
+      ],
+      "molekule_elementarnih_tvari": [
+        "S8",
+        "O3"
+      ],
+      "molekule_spojeva": [
+        "SO2",
+        "NO2"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "S8",
+          "O3",
+          "He",
+          "SO2",
+          "NO2"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-004",
+    "kategorija": "razvrstavanje",
+    "tezina": "srednje",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: P4, F2, Kr, PF3, CF4.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Kr"
+      ],
+      "molekule_elementarnih_tvari": [
+        "P4",
+        "F2"
+      ],
+      "molekule_spojeva": [
+        "PF3",
+        "CF4"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "P4",
+          "F2",
+          "Kr",
+          "PF3",
+          "CF4"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-005",
+    "kategorija": "razvrstavanje",
+    "tezina": "teško",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: Br2, I2, Ne, HBr, HI.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ne"
+      ],
+      "molekule_elementarnih_tvari": [
+        "Br2",
+        "I2"
+      ],
+      "molekule_spojeva": [
+        "HBr",
+        "HI"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "Br2",
+          "I2",
+          "Ne",
+          "HBr",
+          "HI"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-006",
+    "kategorija": "razvrstavanje",
+    "tezina": "lako",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: O2, N2, Ne, NH3, CH4.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ne"
+      ],
+      "molekule_elementarnih_tvari": [
+        "O2",
+        "N2"
+      ],
+      "molekule_spojeva": [
+        "NH3",
+        "CH4"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "O2",
+          "N2",
+          "Ne",
+          "NH3",
+          "CH4"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-007",
+    "kategorija": "razvrstavanje",
+    "tezina": "srednje",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: H2, Cl2, Ar, HCl, CO2.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ar"
+      ],
+      "molekule_elementarnih_tvari": [
+        "H2",
+        "Cl2"
+      ],
+      "molekule_spojeva": [
+        "HCl",
+        "CO2"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "H2",
+          "Cl2",
+          "Ar",
+          "HCl",
+          "CO2"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-008",
+    "kategorija": "razvrstavanje",
+    "tezina": "teško",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: S8, O3, He, SO2, NO2.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "He"
+      ],
+      "molekule_elementarnih_tvari": [
+        "S8",
+        "O3"
+      ],
+      "molekule_spojeva": [
+        "SO2",
+        "NO2"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "S8",
+          "O3",
+          "He",
+          "SO2",
+          "NO2"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-009",
+    "kategorija": "razvrstavanje",
+    "tezina": "lako",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: P4, F2, Kr, PF3, CF4.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Kr"
+      ],
+      "molekule_elementarnih_tvari": [
+        "P4",
+        "F2"
+      ],
+      "molekule_spojeva": [
+        "PF3",
+        "CF4"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "P4",
+          "F2",
+          "Kr",
+          "PF3",
+          "CF4"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-010",
+    "kategorija": "razvrstavanje",
+    "tezina": "srednje",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: Br2, I2, Ne, HBr, HI.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ne"
+      ],
+      "molekule_elementarnih_tvari": [
+        "Br2",
+        "I2"
+      ],
+      "molekule_spojeva": [
+        "HBr",
+        "HI"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "Br2",
+          "I2",
+          "Ne",
+          "HBr",
+          "HI"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-011",
+    "kategorija": "razvrstavanje",
+    "tezina": "teško",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: O2, N2, Ne, NH3, CH4.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ne"
+      ],
+      "molekule_elementarnih_tvari": [
+        "O2",
+        "N2"
+      ],
+      "molekule_spojeva": [
+        "NH3",
+        "CH4"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "O2",
+          "N2",
+          "Ne",
+          "NH3",
+          "CH4"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-012",
+    "kategorija": "razvrstavanje",
+    "tezina": "lako",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: H2, Cl2, Ar, HCl, CO2.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ar"
+      ],
+      "molekule_elementarnih_tvari": [
+        "H2",
+        "Cl2"
+      ],
+      "molekule_spojeva": [
+        "HCl",
+        "CO2"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "H2",
+          "Cl2",
+          "Ar",
+          "HCl",
+          "CO2"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-013",
+    "kategorija": "razvrstavanje",
+    "tezina": "srednje",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: S8, O3, He, SO2, NO2.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "He"
+      ],
+      "molekule_elementarnih_tvari": [
+        "S8",
+        "O3"
+      ],
+      "molekule_spojeva": [
+        "SO2",
+        "NO2"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "S8",
+          "O3",
+          "He",
+          "SO2",
+          "NO2"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-014",
+    "kategorija": "razvrstavanje",
+    "tezina": "teško",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: P4, F2, Kr, PF3, CF4.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Kr"
+      ],
+      "molekule_elementarnih_tvari": [
+        "P4",
+        "F2"
+      ],
+      "molekule_spojeva": [
+        "PF3",
+        "CF4"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "P4",
+          "F2",
+          "Kr",
+          "PF3",
+          "CF4"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-015",
+    "kategorija": "razvrstavanje",
+    "tezina": "lako",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: Br2, I2, Ne, HBr, HI.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ne"
+      ],
+      "molekule_elementarnih_tvari": [
+        "Br2",
+        "I2"
+      ],
+      "molekule_spojeva": [
+        "HBr",
+        "HI"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "Br2",
+          "I2",
+          "Ne",
+          "HBr",
+          "HI"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-016",
+    "kategorija": "razvrstavanje",
+    "tezina": "srednje",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: O2, N2, Ne, NH3, CH4.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ne"
+      ],
+      "molekule_elementarnih_tvari": [
+        "O2",
+        "N2"
+      ],
+      "molekule_spojeva": [
+        "NH3",
+        "CH4"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "O2",
+          "N2",
+          "Ne",
+          "NH3",
+          "CH4"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-017",
+    "kategorija": "razvrstavanje",
+    "tezina": "teško",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: H2, Cl2, Ar, HCl, CO2.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ar"
+      ],
+      "molekule_elementarnih_tvari": [
+        "H2",
+        "Cl2"
+      ],
+      "molekule_spojeva": [
+        "HCl",
+        "CO2"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "H2",
+          "Cl2",
+          "Ar",
+          "HCl",
+          "CO2"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-018",
+    "kategorija": "razvrstavanje",
+    "tezina": "lako",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: S8, O3, He, SO2, NO2.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "He"
+      ],
+      "molekule_elementarnih_tvari": [
+        "S8",
+        "O3"
+      ],
+      "molekule_spojeva": [
+        "SO2",
+        "NO2"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "S8",
+          "O3",
+          "He",
+          "SO2",
+          "NO2"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-019",
+    "kategorija": "razvrstavanje",
+    "tezina": "srednje",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: P4, F2, Kr, PF3, CF4.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Kr"
+      ],
+      "molekule_elementarnih_tvari": [
+        "P4",
+        "F2"
+      ],
+      "molekule_spojeva": [
+        "PF3",
+        "CF4"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "P4",
+          "F2",
+          "Kr",
+          "PF3",
+          "CF4"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-020",
+    "kategorija": "razvrstavanje",
+    "tezina": "teško",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: Br2, I2, Ne, HBr, HI.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ne"
+      ],
+      "molekule_elementarnih_tvari": [
+        "Br2",
+        "I2"
+      ],
+      "molekule_spojeva": [
+        "HBr",
+        "HI"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "Br2",
+          "I2",
+          "Ne",
+          "HBr",
+          "HI"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-021",
+    "kategorija": "razvrstavanje",
+    "tezina": "lako",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: O2, N2, Ne, NH3, CH4.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ne"
+      ],
+      "molekule_elementarnih_tvari": [
+        "O2",
+        "N2"
+      ],
+      "molekule_spojeva": [
+        "NH3",
+        "CH4"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "O2",
+          "N2",
+          "Ne",
+          "NH3",
+          "CH4"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-022",
+    "kategorija": "razvrstavanje",
+    "tezina": "srednje",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: H2, Cl2, Ar, HCl, CO2.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ar"
+      ],
+      "molekule_elementarnih_tvari": [
+        "H2",
+        "Cl2"
+      ],
+      "molekule_spojeva": [
+        "HCl",
+        "CO2"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "H2",
+          "Cl2",
+          "Ar",
+          "HCl",
+          "CO2"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-023",
+    "kategorija": "razvrstavanje",
+    "tezina": "teško",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: S8, O3, He, SO2, NO2.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "He"
+      ],
+      "molekule_elementarnih_tvari": [
+        "S8",
+        "O3"
+      ],
+      "molekule_spojeva": [
+        "SO2",
+        "NO2"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "S8",
+          "O3",
+          "He",
+          "SO2",
+          "NO2"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-024",
+    "kategorija": "razvrstavanje",
+    "tezina": "lako",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: P4, F2, Kr, PF3, CF4.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Kr"
+      ],
+      "molekule_elementarnih_tvari": [
+        "P4",
+        "F2"
+      ],
+      "molekule_spojeva": [
+        "PF3",
+        "CF4"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "P4",
+          "F2",
+          "Kr",
+          "PF3",
+          "CF4"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-025",
+    "kategorija": "razvrstavanje",
+    "tezina": "srednje",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: Br2, I2, Ne, HBr, HI.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ne"
+      ],
+      "molekule_elementarnih_tvari": [
+        "Br2",
+        "I2"
+      ],
+      "molekule_spojeva": [
+        "HBr",
+        "HI"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "Br2",
+          "I2",
+          "Ne",
+          "HBr",
+          "HI"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-026",
+    "kategorija": "razvrstavanje",
+    "tezina": "teško",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: O2, N2, Ne, NH3, CH4.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ne"
+      ],
+      "molekule_elementarnih_tvari": [
+        "O2",
+        "N2"
+      ],
+      "molekule_spojeva": [
+        "NH3",
+        "CH4"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "O2",
+          "N2",
+          "Ne",
+          "NH3",
+          "CH4"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-027",
+    "kategorija": "razvrstavanje",
+    "tezina": "lako",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: H2, Cl2, Ar, HCl, CO2.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ar"
+      ],
+      "molekule_elementarnih_tvari": [
+        "H2",
+        "Cl2"
+      ],
+      "molekule_spojeva": [
+        "HCl",
+        "CO2"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "H2",
+          "Cl2",
+          "Ar",
+          "HCl",
+          "CO2"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-028",
+    "kategorija": "razvrstavanje",
+    "tezina": "srednje",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: S8, O3, He, SO2, NO2.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "He"
+      ],
+      "molekule_elementarnih_tvari": [
+        "S8",
+        "O3"
+      ],
+      "molekule_spojeva": [
+        "SO2",
+        "NO2"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "S8",
+          "O3",
+          "He",
+          "SO2",
+          "NO2"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-029",
+    "kategorija": "razvrstavanje",
+    "tezina": "teško",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: P4, F2, Kr, PF3, CF4.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Kr"
+      ],
+      "molekule_elementarnih_tvari": [
+        "P4",
+        "F2"
+      ],
+      "molekule_spojeva": [
+        "PF3",
+        "CF4"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "P4",
+          "F2",
+          "Kr",
+          "PF3",
+          "CF4"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-030",
+    "kategorija": "razvrstavanje",
+    "tezina": "lako",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: Br2, I2, Ne, HBr, HI.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ne"
+      ],
+      "molekule_elementarnih_tvari": [
+        "Br2",
+        "I2"
+      ],
+      "molekule_spojeva": [
+        "HBr",
+        "HI"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "Br2",
+          "I2",
+          "Ne",
+          "HBr",
+          "HI"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-031",
+    "kategorija": "razvrstavanje",
+    "tezina": "srednje",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: O2, N2, Ne, NH3, CH4.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ne"
+      ],
+      "molekule_elementarnih_tvari": [
+        "O2",
+        "N2"
+      ],
+      "molekule_spojeva": [
+        "NH3",
+        "CH4"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "O2",
+          "N2",
+          "Ne",
+          "NH3",
+          "CH4"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-032",
+    "kategorija": "razvrstavanje",
+    "tezina": "teško",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: H2, Cl2, Ar, HCl, CO2.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "Ar"
+      ],
+      "molekule_elementarnih_tvari": [
+        "H2",
+        "Cl2"
+      ],
+      "molekule_spojeva": [
+        "HCl",
+        "CO2"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "H2",
+          "Cl2",
+          "Ar",
+          "HCl",
+          "CO2"
+        ]
+      }
+    }
+  },
+  {
+    "id": "CL-033",
+    "kategorija": "razvrstavanje",
+    "tezina": "lako",
+    "pitanje": "Razvrstaj sljedeće zapise u skupine: S8, O3, He, SO2, NO2.",
+    "tocanOdgovor": {
+      "atomi_elementa": [
+        "He"
+      ],
+      "molekule_elementarnih_tvari": [
+        "S8",
+        "O3"
+      ],
+      "molekule_spojeva": [
+        "SO2",
+        "NO2"
+      ]
+    },
+    "alternativniPrihvatljiviOdgovori": [],
+    "objasnjenje": "Atomi su pojedinačni simboli elemenata, elementarne molekule sadrže jedan element, a spojevi više elemenata.",
+    "provjeraOdgovora": {
+      "tip": "classification",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii"
+      ],
+      "pravilo": "svaki_element_mora_biti_u_tocnoj_jednoj_skupini",
+      "metapodaci": {
+        "stavke": [
+          "S8",
+          "O3",
+          "He",
+          "SO2",
+          "NO2"
+        ]
+      }
+    }
+  },
+  {
+    "id": "FN-001",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "teško",
+    "pitanje": "Zapiši formulom: 3 molekule kisika.",
+    "tocanOdgovor": {
+      "zapis": "3O2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "3O₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-002",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "lako",
+    "pitanje": "Zapiši formulom: 2 molekule vode.",
+    "tocanOdgovor": {
+      "zapis": "2H2O"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "2H₂O"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-003",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "srednje",
+    "pitanje": "Zapiši formulom: 5 molekula dušika.",
+    "tocanOdgovor": {
+      "zapis": "5N2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "5N₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-004",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "teško",
+    "pitanje": "Zapiši formulom: 4 molekule amonijaka.",
+    "tocanOdgovor": {
+      "zapis": "4NH3"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "4NH₃"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-005",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "lako",
+    "pitanje": "Zapiši formulom: 6 molekula ugljikova dioksida.",
+    "tocanOdgovor": {
+      "zapis": "6CO2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "6CO₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-006",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "srednje",
+    "pitanje": "Zapiši formulom: 7 molekula klora.",
+    "tocanOdgovor": {
+      "zapis": "7Cl2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "7Cl₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-007",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "teško",
+    "pitanje": "Zapiši formulom: 8 molekula vodika.",
+    "tocanOdgovor": {
+      "zapis": "8H2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "8H₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-008",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "lako",
+    "pitanje": "Zapiši formulom: 9 molekula metana.",
+    "tocanOdgovor": {
+      "zapis": "9CH4"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "9CH₄"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-009",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "srednje",
+    "pitanje": "Zapiši formulom: 10 molekula sumporovodika.",
+    "tocanOdgovor": {
+      "zapis": "10H2S"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "10H₂S"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-010",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "teško",
+    "pitanje": "Zapiši formulom: 2 molekule sumporova dioksida.",
+    "tocanOdgovor": {
+      "zapis": "2SO2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "2SO₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-011",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "lako",
+    "pitanje": "Zapiši formulom: 3 molekule kisika.",
+    "tocanOdgovor": {
+      "zapis": "3O2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "3O₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-012",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "srednje",
+    "pitanje": "Zapiši formulom: 2 molekule vode.",
+    "tocanOdgovor": {
+      "zapis": "2H2O"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "2H₂O"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-013",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "teško",
+    "pitanje": "Zapiši formulom: 5 molekula dušika.",
+    "tocanOdgovor": {
+      "zapis": "5N2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "5N₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-014",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "lako",
+    "pitanje": "Zapiši formulom: 4 molekule amonijaka.",
+    "tocanOdgovor": {
+      "zapis": "4NH3"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "4NH₃"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-015",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "srednje",
+    "pitanje": "Zapiši formulom: 6 molekula ugljikova dioksida.",
+    "tocanOdgovor": {
+      "zapis": "6CO2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "6CO₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-016",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "teško",
+    "pitanje": "Zapiši formulom: 7 molekula klora.",
+    "tocanOdgovor": {
+      "zapis": "7Cl2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "7Cl₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-017",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "lako",
+    "pitanje": "Zapiši formulom: 8 molekula vodika.",
+    "tocanOdgovor": {
+      "zapis": "8H2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "8H₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-018",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "srednje",
+    "pitanje": "Zapiši formulom: 9 molekula metana.",
+    "tocanOdgovor": {
+      "zapis": "9CH4"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "9CH₄"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-019",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "teško",
+    "pitanje": "Zapiši formulom: 10 molekula sumporovodika.",
+    "tocanOdgovor": {
+      "zapis": "10H2S"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "10H₂S"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-020",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "lako",
+    "pitanje": "Zapiši formulom: 2 molekule sumporova dioksida.",
+    "tocanOdgovor": {
+      "zapis": "2SO2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "2SO₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-021",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "srednje",
+    "pitanje": "Zapiši formulom: 3 molekule kisika.",
+    "tocanOdgovor": {
+      "zapis": "3O2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "3O₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-022",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "teško",
+    "pitanje": "Zapiši formulom: 2 molekule vode.",
+    "tocanOdgovor": {
+      "zapis": "2H2O"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "2H₂O"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-023",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "lako",
+    "pitanje": "Zapiši formulom: 5 molekula dušika.",
+    "tocanOdgovor": {
+      "zapis": "5N2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "5N₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-024",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "srednje",
+    "pitanje": "Zapiši formulom: 4 molekule amonijaka.",
+    "tocanOdgovor": {
+      "zapis": "4NH3"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "4NH₃"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-025",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "teško",
+    "pitanje": "Zapiši formulom: 6 molekula ugljikova dioksida.",
+    "tocanOdgovor": {
+      "zapis": "6CO2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "6CO₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-026",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "lako",
+    "pitanje": "Zapiši formulom: 7 molekula klora.",
+    "tocanOdgovor": {
+      "zapis": "7Cl2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "7Cl₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-027",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "srednje",
+    "pitanje": "Zapiši formulom: 8 molekula vodika.",
+    "tocanOdgovor": {
+      "zapis": "8H2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "8H₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-028",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "teško",
+    "pitanje": "Zapiši formulom: 9 molekula metana.",
+    "tocanOdgovor": {
+      "zapis": "9CH4"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "9CH₄"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-029",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "lako",
+    "pitanje": "Zapiši formulom: 10 molekula sumporovodika.",
+    "tocanOdgovor": {
+      "zapis": "10H2S"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "10H₂S"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-030",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "srednje",
+    "pitanje": "Zapiši formulom: 2 molekule sumporova dioksida.",
+    "tocanOdgovor": {
+      "zapis": "2SO2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "2SO₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-031",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "teško",
+    "pitanje": "Zapiši formulom: 3 molekule kisika.",
+    "tocanOdgovor": {
+      "zapis": "3O2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "3O₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-032",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "lako",
+    "pitanje": "Zapiši formulom: 2 molekule vode.",
+    "tocanOdgovor": {
+      "zapis": "2H2O"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "2H₂O"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  },
+  {
+    "id": "FN-033",
+    "kategorija": "zapisivanje_formulom",
+    "tezina": "srednje",
+    "pitanje": "Zapiši formulom: 5 molekula dušika.",
+    "tocanOdgovor": {
+      "zapis": "5N2"
+    },
+    "alternativniPrihvatljiviOdgovori": [
+      {
+        "zapis": "5N₂"
+      }
+    ],
+    "objasnjenje": "Broj čestica piše se kao koeficijent ispred kemijske formule.",
+    "provjeraOdgovora": {
+      "tip": "formula_notation",
+      "normalizacija": [
+        "trim",
+        "unicode_subscript_to_ascii",
+        "remove_spaces",
+        "case_insensitive"
+      ],
+      "pravilo": "usporedi_normalizirani_zapis"
+    }
+  }
+];
+
+    const CATEGORY_LABELS = {
+      izjednacavanje_jednadzbi: "Izjednačavanje jednadžbi",
+      formula_spoja: "Pisanje formule spoja",
+      nazivlje_valencije: "Nazivlje i valencije",
+      subatomske_cestice: "Subatomske čestice",
+      razvrstavanje: "Razvrstavanje",
+      zapisivanje_formulom: "Zapisivanje formulom"
+    };
+
+    function parseItemsFromQuestion(questionText) {
+      const cleaned = String(questionText || "").replace(/.*?:\s*/, "").replace(/\.$/, "");
+      return cleaned.split(",").map(s => s.trim()).filter(Boolean);
+    }
+
+    function adaptAnswerByType(taskType, answer) {
+      if (!answer) return {};
+      if (taskType === "equation_balance") return { coefficients: answer.koeficijenti || [] };
+      if (taskType === "compound_formula") return { formula: answer.formula || "" };
+      if (taskType === "compound_name_valency") return { name: answer.naziv || "", valencies: answer.valencije || {} };
+      if (taskType === "subatomic_counts") return { protons: answer.protoni, electrons: answer.elektroni, neutrons: answer.neutroni };
+      if (taskType === "classification") return {
+        atomi_elementa: answer.atomi_elementa || [],
+        molekule_elementarnih_tvari: answer.molekule_elementarnih_tvari || [],
+        molekule_spojeva: answer.molekule_spojeva || []
+      };
+      if (taskType === "formula_notation") return { notation: answer.zapis || "" };
+      return answer;
+    }
+
+    const QUESTIONS = RAW_QUESTIONS.map(raw => {
+      const taskType = raw.provjeraOdgovora?.tip || "";
+      const payload = {};
+
+      if (taskType === "equation_balance") {
+        payload.species = raw.provjeraOdgovora?.metapodaci?.species || [];
+        payload.sides = raw.provjeraOdgovora?.metapodaci?.sides || [];
+      }
+
+      if (taskType === "classification") {
+        payload.items = raw.provjeraOdgovora?.metapodaci?.stavke || parseItemsFromQuestion(raw.pitanje);
+        payload.groups = ["atomi_elementa", "molekule_elementarnih_tvari", "molekule_spojeva"];
+      }
+
+      return {
+        id: raw.id,
+        category: CATEGORY_LABELS[raw.kategorija] || raw.kategorija,
+        difficulty: raw.tezina,
+        taskType,
+        question: raw.pitanje,
+        explanation: raw.objasnjenje,
+        correctAnswer: adaptAnswerByType(taskType, raw.tocanOdgovor),
+        acceptedAnswers: (raw.alternativniPrihvatljiviOdgovori || []).map(ans => adaptAnswerByType(taskType, ans)),
+        payload
+      };
+    });
+
+
+    const state = {
+      currentQuestion: null,
+      pool: [],
+      currentIndex: 0,
+      scoreCorrect: 0,
+      scoreWrong: 0,
+      lastChecked: false
+    };
+
+    const BEST_SCORE_KEY = "kemijaKvizBestScore";
+
+    const setupScreen = document.getElementById("setupScreen");
+    const quizScreen = document.getElementById("quizScreen");
+    const resultScreen = document.getElementById("resultScreen");
+
+    const categorySelect = document.getElementById("categorySelect");
+    const difficultySelect = document.getElementById("difficultySelect");
+    const bestScoreBadge = document.getElementById("bestScoreBadge");
+
+    const questionTitle = document.getElementById("questionTitle");
+    const questionMeta = document.getElementById("questionMeta");
+    const answerContainer = document.getElementById("answerContainer");
+    const progressBadge = document.getElementById("progressBadge");
+    const scoreBadge = document.getElementById("scoreBadge");
+    const feedback = document.getElementById("feedback");
+
+    const startBtn = document.getElementById("startBtn");
+    const checkBtn = document.getElementById("checkBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const themeToggleBtn = document.getElementById("themeToggleBtn");
+
+    const resultCorrect = document.getElementById("resultCorrect");
+    const resultWrong = document.getElementById("resultWrong");
+    const resultPercent = document.getElementById("resultPercent");
+    const resultNote = document.getElementById("resultNote");
+
+    function normalizeFormulaInput(text) {
+      if (!text) return "";
+      const map = { "₀":"0","₁":"1","₂":"2","₃":"3","₄":"4","₅":"5","₆":"6","₇":"7","₈":"8","₉":"9" };
+      return String(text)
+        .trim()
+        .replace(/[₀₁₂₃₄₅₆₇₈₉]/g, char => map[char] || char)
+        .replace(/\s+/g, "")
+        .toLowerCase();
+    }
+
+    function formulaToSubscript(text) {
+      if (!text) return "";
+      const map = { "0":"₀","1":"₁","2":"₂","3":"₃","4":"₄","5":"₅","6":"₆","7":"₇","8":"₈","9":"₉" };
+      const str = String(text);
+      let out = "";
+      for (let i = 0; i < str.length; i++) {
+        const ch = str[i];
+        const prev = i > 0 ? str[i - 1] : "";
+        const prevOut = out.length ? out[out.length - 1] : "";
+        const isDigit = /[0-9]/.test(ch);
+        const shouldSubscript = isDigit && (/[A-Za-z\)]/.test(prev) || /[₀₁₂₃₄₅₆₇₈₉]/.test(prevOut));
+        out += shouldSubscript ? (map[ch] || ch) : ch;
+      }
+      return out;
+    }
+
+    function normalizeName(text) {
+      return String(text || "")
+        .trim()
+        .toLowerCase()
+        .replace(/č|ć/g, "c")
+        .replace(/ž/g, "z")
+        .replace(/š/g, "s")
+        .replace(/đ/g, "d")
+        .replace(/\s+/g, " ");
+    }
+
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function updateBestScoreBadge() {
+      const best = Number(localStorage.getItem(BEST_SCORE_KEY) || 0);
+      bestScoreBadge.textContent = `Najbolji rezultat: ${best}`;
+    }
+
+    function initCategorySelect() {
+      const categories = [...new Set(QUESTIONS.map(q => q.category))].sort((a,b) => a.localeCompare(b, "hr"));
+      categorySelect.innerHTML = `<option value="all">Sve kategorije</option>` +
+        categories.map(c => `<option value="${c}">${c}</option>`).join("");
+    }
+
+    function getFilteredQuestions() {
+      const selectedCategory = categorySelect.value;
+      const selectedDifficulty = difficultySelect.value;
+
+      return QUESTIONS.filter(q => {
+        const catOK = selectedCategory === "all" || q.category === selectedCategory;
+        const diffOK = selectedDifficulty === "all" || q.difficulty === selectedDifficulty;
+        return catOK && diffOK;
+      });
+    }
+
+    function startQuiz() {
+      const filtered = getFilteredQuestions();
+      if (filtered.length < 1) {
+        alert("Nema pitanja za odabrane filtere.");
+        return;
+      }
+
+      state.pool = shuffle(filtered).slice(0, Math.min(10, filtered.length));
+      state.currentIndex = 0;
+      state.scoreCorrect = 0;
+      state.scoreWrong = 0;
+      state.lastChecked = false;
+
+      setupScreen.classList.add("hidden");
+      resultScreen.classList.add("hidden");
+      quizScreen.classList.remove("hidden");
+
+      renderCurrentQuestion();
+      updateScoreBadge();
+    }
+
+    function renderCurrentQuestion() {
+      feedback.className = "feedback hidden";
+      feedback.textContent = "";
+      nextBtn.classList.add("hidden");
+      state.lastChecked = false;
+
+      const q = state.pool[state.currentIndex];
+      state.currentQuestion = q;
+
+      progressBadge.textContent = `Pitanje ${state.currentIndex + 1}/${state.pool.length}`;
+      questionTitle.textContent = q.question;
+      questionMeta.textContent = `${q.category} • ${q.difficulty} • tip: ${q.taskType}`;
+
+      answerContainer.innerHTML = "";
+
+      if (q.taskType === "equation_balance") {
+        const wrapper = document.createElement("div");
+        wrapper.className = "task-group";
+
+        const eqRow = document.createElement("div");
+        eqRow.className = "eq-row";
+
+        q.payload.species.forEach((species, i) => {
+          const input = document.createElement("input");
+          input.type = "number";
+          input.min = "1";
+          input.className = "coef";
+          input.dataset.idx = String(i);
+          input.placeholder = "1";
+
+          const chip = document.createElement("span");
+          chip.className = "chip";
+          chip.textContent = formulaToSubscript(species);
+
+          eqRow.append(input, chip);
+
+          const sideNow = q.payload.sides[i];
+          const sideNext = q.payload.sides[i + 1];
+          if (sideNext && sideNow === sideNext) {
+            const plus = document.createElement("span");
+            plus.textContent = "+";
+            eqRow.append(plus);
+          }
+          if (sideNext && sideNow !== sideNext) {
+            const arrow = document.createElement("span");
+            arrow.textContent = "→";
+            eqRow.append(arrow);
+          }
+        });
+
+        wrapper.innerHTML = "<p class='small muted'>Unesi koeficijente (pozitivni cijeli brojevi).</p>";
+        wrapper.appendChild(eqRow);
+        answerContainer.appendChild(wrapper);
+      }
+
+      if (q.taskType === "compound_formula" || q.taskType === "formula_notation") {
+        const wrapper = document.createElement("div");
+        wrapper.className = "task-group";
+        wrapper.innerHTML = `
+          <label for="singleTextAnswer">Upiši odgovor</label>
+          <input id="singleTextAnswer" type="text" placeholder="Upiši formulu..." />
+        `;
+        answerContainer.appendChild(wrapper);
+      }
+
+      if (q.taskType === "compound_name_valency") {
+        const wrapper = document.createElement("div");
+        wrapper.className = "task-group";
+
+        wrapper.innerHTML = `
+          <div class="row">
+            <div>
+              <label for="nameAnswer">Naziv spoja</label>
+              <input id="nameAnswer" type="text" placeholder="npr. željezov(III) oksid" />
+            </div>
+          </div>
+          <div class="row two">
+            <div>
+              <label for="valFe">Valencija Fe</label>
+              <input id="valFe" type="text" placeholder="III" />
+            </div>
+            <div>
+              <label for="valO">Valencija O</label>
+              <input id="valO" type="text" placeholder="II" />
+            </div>
+          </div>
+        `;
+        answerContainer.appendChild(wrapper);
+      }
+
+      if (q.taskType === "subatomic_counts") {
+        const wrapper = document.createElement("div");
+        wrapper.className = "task-group";
+        wrapper.innerHTML = `
+          <div class="row three">
+            <div>
+              <label for="protons">Protoni (p+)</label>
+              <input id="protons" type="number" min="0" />
+            </div>
+            <div>
+              <label for="electrons">Elektroni (e-)</label>
+              <input id="electrons" type="number" min="0" />
+            </div>
+            <div>
+              <label for="neutrons">Neutroni (n0)</label>
+              <input id="neutrons" type="number" min="0" />
+            </div>
+          </div>
+        `;
+        answerContainer.appendChild(wrapper);
+      }
+
+      if (q.taskType === "classification") {
+        const wrapper = document.createElement("div");
+        wrapper.className = "task-group";
+        const title = document.createElement("p");
+        title.className = "small muted";
+        title.textContent = "Za svaku stavku odaberi skupinu:";
+        wrapper.appendChild(title);
+
+        q.payload.items.forEach((item, idx) => {
+          const row = document.createElement("div");
+          row.className = "row two";
+          row.innerHTML = `
+            <div class="chip">${formulaToSubscript(item)}</div>
+            <div>
+              <select data-item="${item}" id="class-${idx}">
+                <option value="">-- odaberi --</option>
+                <option value="atomi_elementa">Atomi kemijskog elementa</option>
+                <option value="molekule_elementarnih_tvari">Molekule elementarnih tvari</option>
+                <option value="molekule_spojeva">Molekule kemijskih spojeva</option>
+              </select>
+            </div>
+          `;
+          wrapper.appendChild(row);
+        });
+        answerContainer.appendChild(wrapper);
+      }
+    }
+
+    function getUserAnswer(q) {
+      if (q.taskType === "equation_balance") {
+        const values = [...answerContainer.querySelectorAll("input.coef")].map(input => Number(input.value));
+        return { coefficients: values };
+      }
+
+      if (q.taskType === "compound_formula") {
+        return { formula: document.getElementById("singleTextAnswer")?.value || "" };
+      }
+
+      if (q.taskType === "formula_notation") {
+        return { notation: document.getElementById("singleTextAnswer")?.value || "" };
+      }
+
+      if (q.taskType === "compound_name_valency") {
+        return {
+          name: document.getElementById("nameAnswer")?.value || "",
+          valencies: {
+            Fe: document.getElementById("valFe")?.value || "",
+            O: document.getElementById("valO")?.value || ""
+          }
+        };
+      }
+
+      if (q.taskType === "subatomic_counts") {
+        return {
+          protons: Number(document.getElementById("protons")?.value),
+          electrons: Number(document.getElementById("electrons")?.value),
+          neutrons: Number(document.getElementById("neutrons")?.value)
+        };
+      }
+
+      if (q.taskType === "classification") {
+        const result = {};
+        q.payload.items.forEach(item => {
+          const select = answerContainer.querySelector(`select[data-item='${item}']`);
+          result[item] = select ? select.value : "";
+        });
+        return { assigned: result };
+      }
+
+      return {};
+    }
+
+    function formatCorrectAnswer(q) {
+      if (q.taskType === "equation_balance") {
+        const parts = q.payload.species.map((s, i) => `${q.correctAnswer.coefficients[i]}${s}`);
+        let out = "";
+        for (let i = 0; i < parts.length; i++) {
+          out += parts[i];
+          const now = q.payload.sides[i];
+          const next = q.payload.sides[i + 1];
+          if (next) out += now === next ? " + " : " → ";
+        }
+        return formulaToSubscript(out);
+      }
+      if (q.taskType === "compound_formula") return formulaToSubscript(q.correctAnswer.formula);
+      if (q.taskType === "formula_notation") return formulaToSubscript(q.correctAnswer.notation);
+      if (q.taskType === "compound_name_valency") {
+        return `${q.correctAnswer.name}; Fe=${q.correctAnswer.valencies.Fe}, O=${q.correctAnswer.valencies.O}`;
+      }
+      if (q.taskType === "subatomic_counts") {
+        return `p+=${q.correctAnswer.protons}, e-=${q.correctAnswer.electrons}, n0=${q.correctAnswer.neutrons}`;
+      }
+      if (q.taskType === "classification") {
+        const ca = q.correctAnswer;
+        return `Atomi: ${ca.atomi_elementa.map(formulaToSubscript).join(", ")} | Elementarne molekule: ${ca.molekule_elementarnih_tvari.map(formulaToSubscript).join(", ")} | Molekule spojeva: ${ca.molekule_spojeva.map(formulaToSubscript).join(", ")}`;
+      }
+      return "";
+    }
+
+    function validateAnswer(q, user) {
+      if (q.taskType === "equation_balance") {
+        if (!user.coefficients.every(n => Number.isInteger(n) && n > 0)) return false;
+        return user.coefficients.length === q.correctAnswer.coefficients.length &&
+          user.coefficients.every((n, i) => n === q.correctAnswer.coefficients[i]);
+      }
+
+      if (q.taskType === "compound_formula") {
+        const entered = normalizeFormulaInput(user.formula);
+        const valid = [q.correctAnswer.formula, ...q.acceptedAnswers.map(a => a.formula)].map(normalizeFormulaInput);
+        return valid.includes(entered);
+      }
+
+      if (q.taskType === "formula_notation") {
+        const entered = normalizeFormulaInput(user.notation);
+        const valid = [q.correctAnswer.notation, ...q.acceptedAnswers.map(a => a.notation)].map(normalizeFormulaInput);
+        return valid.includes(entered);
+      }
+
+      if (q.taskType === "compound_name_valency") {
+        const enteredName = normalizeName(user.name);
+        const names = [q.correctAnswer.name, ...q.acceptedAnswers.map(a => a.name)].map(normalizeName);
+        const valFe = String(user.valencies.Fe || "").trim().toUpperCase();
+        const valO = String(user.valencies.O || "").trim().toUpperCase();
+        return names.includes(enteredName) &&
+          valFe === q.correctAnswer.valencies.Fe &&
+          valO === q.correctAnswer.valencies.O;
+      }
+
+      if (q.taskType === "subatomic_counts") {
+        return user.protons === q.correctAnswer.protons &&
+          user.electrons === q.correctAnswer.electrons &&
+          user.neutrons === q.correctAnswer.neutrons;
+      }
+
+      if (q.taskType === "classification") {
+        const expected = {};
+        q.correctAnswer.atomi_elementa.forEach(item => expected[item] = "atomi_elementa");
+        q.correctAnswer.molekule_elementarnih_tvari.forEach(item => expected[item] = "molekule_elementarnih_tvari");
+        q.correctAnswer.molekule_spojeva.forEach(item => expected[item] = "molekule_spojeva");
+        return q.payload.items.every(item => user.assigned[item] === expected[item]);
+      }
+
+      return false;
+    }
+
+    function updateScoreBadge() {
+      scoreBadge.textContent = `Točno: ${state.scoreCorrect} | Netočno: ${state.scoreWrong}`;
+    }
+
+    function checkCurrentAnswer() {
+      if (state.lastChecked) return;
+
+      const q = state.currentQuestion;
+      const user = getUserAnswer(q);
+      const correct = validateAnswer(q, user);
+
+      state.lastChecked = true;
+      if (correct) state.scoreCorrect += 1;
+      else state.scoreWrong += 1;
+
+      updateScoreBadge();
+
+      feedback.classList.remove("hidden", "ok", "bad");
+      feedback.classList.add(correct ? "ok" : "bad");
+      feedback.innerHTML = `
+        <strong>${correct ? "Točno!" : "Netočno."}</strong>
+        <p>${q.explanation}</p>
+        <p><strong>Točan odgovor:</strong> ${formatCorrectAnswer(q)}</p>
+      `;
+
+      nextBtn.classList.remove("hidden");
+    }
+
+    function nextQuestion() {
+      if (!state.lastChecked) return;
+      state.currentIndex += 1;
+
+      if (state.currentIndex >= state.pool.length) {
+        finishQuiz();
+        return;
+      }
+
+      renderCurrentQuestion();
+    }
+
+    function finishQuiz() {
+      quizScreen.classList.add("hidden");
+      resultScreen.classList.remove("hidden");
+
+      const total = state.pool.length;
+      const pct = total > 0 ? Math.round((state.scoreCorrect / total) * 100) : 0;
+
+      resultCorrect.textContent = String(state.scoreCorrect);
+      resultWrong.textContent = String(state.scoreWrong);
+      resultPercent.textContent = `${pct}%`;
+
+      const oldBest = Number(localStorage.getItem(BEST_SCORE_KEY) || 0);
+      if (state.scoreCorrect > oldBest) {
+        localStorage.setItem(BEST_SCORE_KEY, String(state.scoreCorrect));
+        resultNote.textContent = "Bravo! Ovo je tvoj novi najbolji rezultat.";
+      } else {
+        resultNote.textContent = "Dobar posao! Probaj ponovno za bolji rezultat.";
+      }
+
+      updateBestScoreBadge();
+    }
+
+    function restartToSetup() {
+      resultScreen.classList.add("hidden");
+      quizScreen.classList.add("hidden");
+      setupScreen.classList.remove("hidden");
+    }
+
+    function applyTheme(theme) {
+      if (theme === "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+        themeToggleBtn.textContent = "☀️ Svijetli način";
+      } else {
+        document.documentElement.setAttribute("data-theme", "light");
+        themeToggleBtn.textContent = "🌙 Tamni način";
+      }
+    }
+
+    function initTheme() {
+      const storedTheme = localStorage.getItem("kemijaKvizTheme");
+      if (storedTheme === "dark" || storedTheme === "light") {
+        applyTheme(storedTheme);
+        return;
+      }
+      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      applyTheme(prefersDark ? "dark" : "light");
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+      const next = current === "dark" ? "light" : "dark";
+      localStorage.setItem("kemijaKvizTheme", next);
+      applyTheme(next);
+    }
+
+    startBtn.addEventListener("click", startQuiz);
+    checkBtn.addEventListener("click", checkCurrentAnswer);
+    nextBtn.addEventListener("click", nextQuestion);
+    restartBtn.addEventListener("click", restartToSetup);
+    themeToggleBtn.addEventListener("click", toggleTheme);
+
+    initCategorySelect();
+    updateBestScoreBadge();
+    initTheme();
+  </script>
+</body>
+</html>
